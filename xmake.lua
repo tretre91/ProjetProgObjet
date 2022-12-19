@@ -1,3 +1,4 @@
+add_rules("mode.release", "mode.debug")
 set_allowedplats("windows", "macosx", "linux")
 
 add_requires("fltk 1.4.0")
@@ -61,5 +62,6 @@ target("labh")
     add_rules("custom_config")
     add_cxxflags("-Wall")
     add_packages("fltk")
-    add_includedirs("include", "include/immutable")
+    add_includedirs("include", "include/immutable", "lib/fmt-9.0.0/include")
+    add_defines("FMT_HEADER_ONLY")
     add_files("./src/*.cc", "./src/*.cpp")
