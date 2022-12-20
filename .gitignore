@@ -1,3 +1,4 @@
-.xmake
-.vscode
-build
+.xmake/
+.vscode/
+.cache/
+build/

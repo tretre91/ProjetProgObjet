@@ -2,222 +2,41 @@
 #include "Chasseur.h"
 #include "Gardien.h"
 
+#include <cctype>
 #include <fmt/core.h>
-#include <fstream>
 #include <limits>
-#include <unordered_map>
-#include <vector>
 
 Sound* Chasseur::_hunter_fire; // bruit de l'arme du chasseur.
 Sound* Chasseur::_hunter_hit;  // cri du chasseur touché.
 Sound* Chasseur::_wall_hit;    // on a tapé un mur.
 
 Environnement* Environnement::init(char* filename) {
+    texture_dir = "new_textures";
     return new Labyrinthe(filename);
 }
 
 
 Labyrinthe::Labyrinthe(const char* filename) {
-    parse(filename);
-    return;
-    // TODO: remove below
-    // les 4 murs.
-    static Wall walls[] = {
-      {0, 0, LAB_WIDTH - 1, 0, 0},
-      {LAB_WIDTH - 1, 0, LAB_WIDTH - 1, LAB_HEIGHT - 1, 0},
-      {LAB_WIDTH - 1, LAB_HEIGHT - 1, 0, LAB_HEIGHT - 1, 0},
-      {0, LAB_HEIGHT - 1, 0, 0, 0},
-    };
-    // une affiche.
-    //  (attention: pour des raisons de rapport d'aspect, les affiches doivent faire 2 de long)
-    static Wall affiche[] = {
-      {4, 0, 6, 0, 0},  // premi�re affiche.
-      {8, 0, 10, 0, 0}, // autre affiche.
-    };
-    // 3 caisses.
-    static Box caisses[] = {
-      {70, 12, 0},
-      {10, 5, 0},
-      {65, 22, 0},
-    };
-
-    /* DEB - NOUVEAU */
-    // 2 marques au sol.
-    static Box marques[] = {
-      {50, 14, 0},
-      {20, 15, 0},
-    };
-    /* FIN - NOUVEAU */
-
-    // juste un mur autour et les 3 caisses et le tr�sor dedans.
-    for (int i = 0; i < LAB_WIDTH; ++i)
-        for (int j = 0; j < LAB_HEIGHT; ++j) {
-            if (i == 0 || i == LAB_WIDTH - 1 || j == 0 || j == LAB_HEIGHT - 1)
-                _data[i][j] = 1;
-            else
-                _data[i][j] = EMPTY;
-        }
-    // indiquer qu'on ne marche pas sur une caisse.
-    _data[caisses[0]._x][caisses[0]._y] = 1;
-    _data[caisses[1]._x][caisses[1]._y] = 1;
-    _data[caisses[2]._x][caisses[2]._y] = 1;
-    // les 4 murs.
-    _nwall = 4;
-    _walls = walls;
-    // deux affiches.
-    _npicts = 2;
-    _picts = affiche;
-    // la deuxi�me � une texture diff�rente.
-    char tmp[128];
-    sprintf(tmp, "%s/%s", texture_dir, "voiture.jpg");
-    _picts[1]._ntex = wall_texture(tmp);
-    // 3 caisses.
-    _nboxes = 3;
-    _boxes = caisses;
-
-    /* DEB - NOUVEAU */
-    // mettre une autre texture � la deuxi�me caisse.
-    sprintf(tmp, "%s/%s", texture_dir, "boite.jpg");
-    caisses[1]._ntex = wall_texture(tmp);
-
-    // mettre les marques au sol.
-    sprintf(tmp, "%s/%s", texture_dir, "p1.gif");
-    marques[0]._ntex = wall_texture(tmp);
-    sprintf(tmp, "%s/%s", texture_dir, "p3.gif");
-    marques[1]._ntex = wall_texture(tmp);
-    _nmarks = 2;
-    _marks = marques;
-    /* FIN - NOUVEAU */
-
-    // le tr�sor.
-    _treasor._x = 10;
-    _treasor._y = 10;
-    _data[_treasor._x][_treasor._y] = 1; // indiquer qu'on ne marche pas sur le tr�sor.
-    // le chasseur et les 4 gardiens.
-    _nguards = 5;
-    _guards = new Mover*[_nguards];
-    _guards[0] = new Chasseur(this);
-    _guards[1] = new Gardien(this, "Lezard");
-    _guards[2] = new Gardien(this, "Blade");
-    _guards[2]->_x = 90.;
-    _guards[2]->_y = 70.;
-    _guards[3] = new Gardien(this, "Serpent");
-    _guards[3]->_x = 60.;
-    _guards[3]->_y = 10.;
-    _guards[4] = new Gardien(this, "Samourai");
-    _guards[4]->_x = 130.;
-    _guards[4]->_y = 100.;
-    // indiquer qu'on ne marche pas sur les gardiens.
-    _data[(int)(_guards[1]->_x / scale)][(int)(_guards[1]->_y / scale)] = 1;
-    _data[(int)(_guards[2]->_x / scale)][(int)(_guards[2]->_y / scale)] = 1;
-    _data[(int)(_guards[3]->_x / scale)][(int)(_guards[3]->_y / scale)] = 1;
-    _data[(int)(_guards[4]->_x / scale)][(int)(_guards[4]->_y / scale)] = 1;
-}
-
-Labyrinthe::~Labyrinthe() {
-    for (Mover* m : m_guards) {
-        delete m;
-    }
-}
-
-void Labyrinthe::parse(const char* filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        throw std::invalid_argument(fmt::format("ERROR: Labyrinthe, no file named {}", filename));
+        throw std::invalid_argument(fmt::format("No file named {}", filename));
     }
-
-    std::unordered_map<char, std::string> textures = parse_header(file);
-
-    fmt::print("Parsed the following textures:\n");
-    for (auto& [name, val] : textures) {
-        fmt::print("- {}: {}\n", name, val);
-    }
-
-    // return; // TODO: remove
-
-    const int box_texture = wall_texture(fmt::format("{}/caisse.jpg", texture_dir).data());
-    const int mark_texture = wall_texture(fmt::format("{}/p1.gif", texture_dir).data());
 
     m_guards.push_back(new Chasseur(this));
 
-    std::string line;
-    std::unordered_map<int, int> partial_walls;
-    int last_horizontal_wall = -1;
-    int y = 0;
-    int min_x = std::numeric_limits<int>::max();
-    int max_x = std::numeric_limits<int>::min();
+    fmt::print(stderr, "Parsing {} ...\n", filename);
+    int min_x = parse(file);
+    fmt::print(stderr, "Done!\n");
 
-    while (std::getline(file, line)) {
-        for (int x = 0; x < line.size(); x++) {
-            switch (line[x]) {
-            case ' ':
-                last_horizontal_wall = -1;
-                if (partial_walls.find(x) != partial_walls.end()) {
-                    partial_walls.erase(x);
-                }
-                break;
-            case '-': // TODO: indicate if a maze is ill-formed
-            case '|':
-                break;
-            case 'x':
-            case 'X':
-                m_boxes.push_back({x, y, box_texture});
-                break;
-            case 'm':
-            case 'M':
-                m_marks.push_back({x, y, mark_texture});
-                break;
-            case 'T': // TODO
-                _treasor._x = x;
-                _treasor._y = y;
-                break;
-            case 'C':
-                m_guards[0]->_x = x * scale;
-                m_guards[0]->_y = y * scale;
-                break;
-            case 'G':
-                {
-                    Mover* guardian = new Gardien(this, "Samourai"); // TODO
-                    m_guards.push_back(guardian);
-                    guardian->_x = x * scale;
-                    guardian->_y = y * scale;
-                    break;
-                }
-            case '+': // TODO
-                if (x < min_x) {
-                    min_x = x;
-                } else if (x > max_x) {
-                    max_x = x;
-                }
-
-                // check if this corresponds to a vertical wall
-                if (auto it = partial_walls.find(x); it != partial_walls.end()) {
-                    m_walls.push_back({x, it->second, x, y, 0});
-                }
-                partial_walls[x] = y;
-
-                // same for the horizontal wall
-                if (last_horizontal_wall != -1) {
-                    m_walls.push_back({last_horizontal_wall, y, x, y, 0});
-                }
-                last_horizontal_wall = x;
-                break;
-            default:
-                break;
-            }
-        }
-        y++;
-    }
-
-    m_width = max_x - min_x + 1;
-    m_height = y;
-
+    // Update the map and correct the object's x positions
     m_map = std::vector<std::vector<char>>(m_height);
     for (size_t i = 0; i < m_map.size(); i++) {
         m_map[i].resize(m_width);
     }
 
-    for (const Wall& wall : m_walls) {
+    for (Wall& wall : m_walls) {
+        wall._x1 -= min_x;
+        wall._x2 -= min_x;
         if (wall._x1 == wall._x2) {
             for (int y = wall._y1; y <= wall._y2; y++) {
                 m_map[y][wall._x1] = 1;
@@ -229,17 +48,31 @@ void Labyrinthe::parse(const char* filename) {
         }
     }
 
+    for (Wall& poster : m_posters) {
+        poster._x1 -= min_x;
+        poster._x2 -= min_x;
+    }
 
-    for (const Box& box : m_boxes) {
+    for (Box& box : m_boxes) {
+        box._x -= min_x;
         m_map[box._y][box._x] = 1;
     }
 
+    for (Box& mark : m_marks) {
+        mark._x -= min_x;
+    }
+
+    _treasor._x -= min_x;
     m_map[_treasor._y][_treasor._x] = 1;
 
+    m_guards[0]->_x -= min_x * scale;
     for (size_t i = 1; i < m_guards.size(); i++) {
+        m_guards[i]->_x -= min_x * scale;
         m_map[static_cast<int>(m_guards[i]->_y / scale)][static_cast<int>(m_guards[i]->_x / scale)] = 1;
     }
 
+
+    // Set the Environment member variables
     _walls = m_walls.data();
     _nwall = m_walls.size();
     _picts = m_posters.data();
@@ -250,6 +83,28 @@ void Labyrinthe::parse(const char* filename) {
     _nmarks = m_marks.size();
     _guards = m_guards.data();
     _nguards = m_guards.size();
+}
+
+Labyrinthe::~Labyrinthe() {
+    for (Mover* m : m_guards) {
+        delete m;
+    }
+}
+
+int Labyrinthe::texture_id(const std::string& filename) {
+    static std::unordered_map<std::string, int> texture_cache;
+
+    auto it = texture_cache.find(filename);
+    if (it != texture_cache.end()) {
+        return it->second;
+    } else {
+        const int id = wall_texture(fmt::format("{}/{}", texture_dir, filename).data());
+        if (id == 0) {
+            fmt::print(stderr, "WARNING: no texture file named '{}/{}'\n", texture_dir, filename);
+        }
+        texture_cache[filename] = id;
+        return id;
+    }
 }
 
 std::unordered_map<char, std::string> Labyrinthe::parse_header(std::ifstream& file) {
@@ -276,7 +131,7 @@ std::unordered_map<char, std::string> Labyrinthe::parse_header(std::ifstream& fi
                 textures[c] = texture_filename;
                 file.ignore(max_ignored_chars, '\n');
             } else {
-                throw std::runtime_error(fmt::format("ERROR: When parsing maze file, unknown character '{}'", c));
+                throw ParseError(fmt::format("unknown character '{}' in maze header", c));
             }
             break;
         }
@@ -284,4 +139,120 @@ std::unordered_map<char, std::string> Labyrinthe::parse_header(std::ifstream& fi
     }
 
     return textures;
+}
+
+
+int Labyrinthe::parse(std::ifstream& file) {
+    std::unordered_map<char, std::string> textures = parse_header(file);
+
+    const int box_texture = texture_id("caisse.jpg");
+    const int mark_texture = texture_id("p1.gif");
+
+    std::string line;
+    std::unordered_map<int, int> partial_walls;
+    int last_horizontal_wall = -1;
+    int y = 0;
+    int min_x = std::numeric_limits<int>::max();
+    int max_x = std::numeric_limits<int>::min();
+    bool hunter_found = false;
+    bool treasure_found = false;
+
+    while (std::getline(file, line)) {
+        for (int x = 0; x < line.size(); x++) {
+            switch (line[x]) {
+            case ' ':
+                last_horizontal_wall = -1;
+                if (partial_walls.find(x) != partial_walls.end()) {
+                    partial_walls.erase(x);
+                }
+                break;
+            case '-': // TODO: indicate if a maze is ill-formed
+            case '|':
+                break;
+            case 'X':
+                m_boxes.push_back({x, y, box_texture});
+                break;
+            case 'M':
+                m_marks.push_back({x, y, mark_texture});
+                break;
+            case 'T':
+                if (treasure_found) {
+                    throw ParseError(fmt::format("{}:{}, There can only be 1 treasure", y, x));
+                }
+                treasure_found = true;
+                _treasor._x = x;
+                _treasor._y = y;
+                break;
+            case 'C':
+                if (hunter_found) {
+                    throw ParseError(fmt::format("{}:{}, There can only be 1 hunter", y, x));
+                }
+                hunter_found = true;
+                m_guards[0]->_x = x * scale;
+                m_guards[0]->_y = y * scale;
+                break;
+            case 'G':
+                {
+                    Mover* guardian = new Gardien(this, "Samourai"); // TODO "Lezard","Blade","Serpent","Samourai"
+                    m_guards.push_back(guardian);
+                    guardian->_x = x * scale;
+                    guardian->_y = y * scale;
+                }
+                break;
+            case '+':
+                if (x < min_x) {
+                    min_x = x;
+                } else if (x > max_x) {
+                    max_x = x;
+                }
+
+                // check if this corresponds to a vertical wall
+                if (auto it = partial_walls.find(x); it != partial_walls.end()) {
+                    m_walls.push_back({x, it->second, x, y, 0});
+                }
+                partial_walls[x] = y;
+
+                // same for the horizontal wall
+                if (last_horizontal_wall != -1) {
+                    m_walls.push_back({last_horizontal_wall, y, x, y, 0});
+                }
+                last_horizontal_wall = x;
+                break;
+            default: // textures and invalid characters
+                {
+                    if (!std::islower(line[x])) {
+                        throw ParseError(fmt::format("{}:{}, Unknown character '{}'", y, x, line[x]));
+                    }
+
+                    const auto it = textures.find(line[x]);
+                    if (it == textures.end()) {
+                        throw ParseError(fmt::format("{}:{}, No texture associated with '{}'", y, x, line[x]));
+                    }
+
+                    const bool on_horizontal_wall = last_horizontal_wall != -1;
+                    const bool on_vertical_wall = partial_walls.find(x) != partial_walls.end();
+                    if (on_horizontal_wall && on_vertical_wall) {
+                        throw ParseError(fmt::format("{}:{}, A texture cannot be at a wall intersection", y, x));
+                    }
+
+                    if (!on_horizontal_wall && !on_vertical_wall) {
+                        throw ParseError(fmt::format("{}:{}, A texture must be on a wall", y, x));
+                    }
+
+                    if (on_horizontal_wall) {
+                        m_posters.push_back({x, y, x + 2, y, texture_id(it->second)});
+                    } else {
+                        m_posters.push_back({x, y, x, y + 2, texture_id(it->second)});
+                    }
+                }
+                break;
+            }
+        }
+        y++;
+    }
+
+    m_width = max_x - min_x + 1;
+    m_height = y;
+
+    return min_x;
 }

@@ -2,17 +2,15 @@
 #define LABYRINTHE_H
 
 #include "Environnement.h"
+#include "Exception.h"
+#include <fstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#define LAB_WIDTH 80
-#define LAB_HEIGHT 25
-
 class Labyrinthe : public Environnement
 {
 private:
-    char _data[LAB_WIDTH][LAB_HEIGHT];
     std::vector<std::vector<char>> m_map;
     int m_width;
     int m_height;
@@ -24,26 +22,53 @@ private:
     std::vector<Mover*> m_guards;
 
     /**
-     * @brief Parse a maze file and fill the member variables
+     * @brief Returns the texture id associated to a file.
+     */
+    int texture_id(const std::string& filename);
+
+    /**
+     * @brief Parse the header of a maze file.
+     *
+     * This function parses the header in order to get the textures used in this file,
+     * it returns a map from the chars used to identify a texture to the associated filename.
+     *
+     * @note This function places the stream in a state such that the next line read will
+     *       be the beginning of the labyrinth.
+     *
+     * @param file A file stream of the file to parse
+     * @return A map associating a character to a texture's filename
+     */
+    std::unordered_map<char, std::string> parse_header(std::ifstream& file);
+
+    /**
+     * @brief Parse a maze file and fill the member variables.
      *
      * @param filename The maze file's name
+     * @return The lowest x coordinate of the maze
+     * @throws ParseError If an error occured when parsing the labyrinth
      */
-    void parse(const char* filename);
+    int parse(std::ifstream& file);
 
-    std::unordered_map<char, std::string> parse_header(std::ifstream& file);
 
 public:
     Labyrinthe(const char* filename);
-	
+
     ~Labyrinthe();
 
-    int width() { return m_width; } // retourne la largeur du labyrinthe.
+    /**
+     * @brief Return the labyrinth's width.
+     */
+    int width() { return m_width; }
 
-    int height() { return m_height; } // retourne la longueur du labyrinthe.
+    /**
+     * @brief Return the labyrinth's height.
+     */
+    int height() { return m_height; }
 
-    char data(int i, int j) {
-        return m_map[j][i];
-    } // retourne la case (i, j).
+    /**
+     * @brief Return the cell at position (x, y).
+     */
+    char data(int x, int y) { return m_map[y][x]; }
 };
 
 #endif

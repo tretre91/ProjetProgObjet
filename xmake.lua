@@ -1,5 +1,6 @@
 add_rules("mode.release", "mode.debug")
 set_allowedplats("windows", "macosx", "linux")
+set_languages("c++17")
 
 add_requires("fltk 1.4.0")
 
