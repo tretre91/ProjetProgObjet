@@ -31,7 +31,7 @@ Labyrinthe::Labyrinthe(const char* filename) {
     // Update the map and correct the object's x positions
     m_map = std::vector<std::vector<char>>(m_height);
     for (size_t i = 0; i < m_map.size(); i++) {
-        m_map[i].resize(m_width);
+        m_map[i].resize(m_width, EMPTY);
     }
 
     for (Wall& wall : m_walls) {
