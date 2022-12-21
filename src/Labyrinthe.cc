@@ -6,11 +6,12 @@
 #include <fmt/core.h>
 #include <limits>
 
-Sound* Chasseur::_hunter_fire; // bruit de l'arme du chasseur.
-Sound* Chasseur::_hunter_hit;  // cri du chasseur touché.
-Sound* Chasseur::_wall_hit;    // on a tapé un mur.
-
 Environnement* Environnement::init(char* filename) {
+    // initialization of the sound objects
+    Chasseur::_hunter_fire = new Sound("sons/hunter_fire.wav"); // bruit de l'arme du chasseur.
+    Chasseur::_hunter_hit = new Sound("sons/hunter_hit.wav");   // cri du chasseur touché.
+    Chasseur::_wall_hit = new Sound("sons/hit_wall.wav");       // on a tapé un mur.
+
     texture_dir = "new_textures";
     return new Labyrinthe(filename);
 }
@@ -89,6 +90,10 @@ Labyrinthe::~Labyrinthe() {
     for (Mover* m : m_guards) {
         delete m;
     }
+
+    delete Chasseur::_hunter_fire;
+    delete Chasseur::_hunter_hit;
+    delete Chasseur::_wall_hit;
 }
 
 int Labyrinthe::texture_id(const std::string& filename) {
