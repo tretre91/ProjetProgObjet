@@ -1,31 +1,14 @@
 #include "Chasseur.h"
+#include "Labyrinthe.h"
+#include <fmt/core.h>
 
 Sound* Chasseur::_hunter_fire; // bruit de l'arme du chasseur.
 Sound* Chasseur::_hunter_hit;  // cri du chasseur touché.
 Sound* Chasseur::_wall_hit;    // on a tapé un mur.
 
-/*
- *	Tente un deplacement.
- */
 
-bool Chasseur::move_aux(double dx, double dy) {
-    if (EMPTY == _l->data((int)((_x + dx) / Environnement::scale), (int)((_y + dy) / Environnement::scale))) {
-        _x += dx;
-        _y += dy;
-        return true;
-    }
-    return false;
-}
+Chasseur::Chasseur(Labyrinthe* l) : Character(100, 80, l, nullptr) {}
 
-/*
- *	Constructeur.
- */
-
-Chasseur::Chasseur(Labyrinthe* l) : Mover(100, 80, l, nullptr) {}
-
-/*
- *	Fait bouger la boule de feu (ceci est une exemple, � vous de traiter les collisions sp�cifiques...)
- */
 
 bool Chasseur::process_fireball(float dx, float dy) {
     // calculer la distance entre le chasseur et le lieu de l'explosion.
@@ -47,9 +30,6 @@ bool Chasseur::process_fireball(float dx, float dy) {
     return false;
 }
 
-/*
- *	Tire sur un ennemi.
- */
 
 void Chasseur::fire(int angle_vertical) {
     message("Woooshh...");
@@ -58,12 +38,6 @@ void Chasseur::fire(int angle_vertical) {
       /* angles de vis�e */ angle_vertical, _angle);
 }
 
-/*
- *	Clic droit: par d�faut fait tomber le premier gardien.
- *
- *	Inutile dans le vrai jeu, mais c'est juste pour montrer
- *	une utilisation des fonctions � tomber � et � rester_au_sol �
- */
 
 void Chasseur::right_click(bool shift, bool control) {
     if (shift)

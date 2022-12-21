@@ -69,6 +69,11 @@ public:
      * @brief Return the cell at position (x, y).
      */
     char data(int x, int y) { return m_map[y][x]; }
+
+    /**
+     * @brief Return a reference to the cell at position (x, y)
+     */
+    char& mut_data(int x, int y) { return m_map[y][x]; }
 };
 
 #endif

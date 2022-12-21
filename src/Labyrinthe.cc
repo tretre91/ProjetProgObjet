@@ -1,6 +1,7 @@
 #include "Labyrinthe.h"
 #include "Chasseur.h"
 #include "Gardien.h"
+#include "Position.h"
 
 #include <cctype>
 #include <fmt/core.h>
@@ -12,6 +13,7 @@ Environnement* Environnement::init(char* filename) {
     Chasseur::_hunter_hit = new Sound("sons/hunter_hit.wav");   // cri du chasseur touché.
     Chasseur::_wall_hit = new Sound("sons/hit_wall.wav");       // on a tapé un mur.
 
+    // creation of the labyrinth
     texture_dir = "new_textures";
     return new Labyrinthe(filename);
 }
@@ -28,6 +30,10 @@ Labyrinthe::Labyrinthe(const char* filename) {
     fmt::print(stderr, "Parsing {} ...\n", filename);
     int min_x = parse(file);
     fmt::print(stderr, "Done!\n");
+
+    // initialization of the Position class
+    Position::max_x = m_width;
+    Position::max_y = m_height;
 
     // Update the map and correct the object's x positions
     m_map = std::vector<std::vector<char>>(m_height);
@@ -69,7 +75,8 @@ Labyrinthe::Labyrinthe(const char* filename) {
     m_guards[0]->_x -= min_x * scale;
     for (size_t i = 1; i < m_guards.size(); i++) {
         m_guards[i]->_x -= min_x * scale;
-        m_map[static_cast<int>(m_guards[i]->_y / scale)][static_cast<int>(m_guards[i]->_x / scale)] = 1;
+        Position p = Position::grid_position(m_guards[i]->_x, m_guards[i]->_y);
+        m_map[p.y][p.x] = 1;
     }
 
 

@@ -1,36 +1,55 @@
 #ifndef CHASSEUR_H
 #define CHASSEUR_H
 
-#include <stdio.h>
-#include "Mover.h"
+#include "Character.h"
 #include "Sound.h"
 
 class Labyrinthe;
 
-class Chasseur : public Mover {
-private:
-	// accepte ou non un deplacement.
-	bool move_aux (double dx, double dy);
+class Chasseur : public Character
+{
 public:
-	// les sons.
-	static Sound*	_hunter_fire;	// bruit de l'arme du chasseur.
-	static Sound*	_hunter_hit;	// cri du chasseur touché.
-	static Sound*	_wall_hit;		// on a tapé un mur.
+    // The sounds of the hunter
+    static Sound* _hunter_fire; // bruit de l'arme du chasseur.
+    static Sound* _hunter_hit;  // cri du chasseur touchÃ©.
+    static Sound* _wall_hit;    // on a tapÃ© un mur.
 
-	// constructeur.
-	Chasseur (Labyrinthe* l);
-	// ne bouger que dans une case vide (on 'glisse' le long des obstacles)
-	bool move (double dx, double dy) {
-		return move_aux (dx, dy) || move_aux (dx, 0.0) || move_aux (0.0, dy);
-	}
-	// le chasseur ne pense pas!
-	void update (void) {};
-	// fait bouger la boule de feu (ceci est une exemple, à vous de traiter les collisions spécifiques...)
-	bool process_fireball (float dx, float dy);
-	// tire sur un ennemi.
-	void fire (int angle_vertical);
-	// clic droit.
-	void right_click (bool shift, bool control);
+    /**
+     * @brief Construct a new Chasseur object
+     */
+    Chasseur(Labyrinthe* l);
+
+    /**
+     * @brief Attemps to move the character along the x and y axis
+     * See Character::try_move
+     * @return true if the hunter was moved, false otherwise
+     */
+    bool move(double dx, double dy) { return try_move(dx, dy); }
+
+    /**
+     * @brief Function called at each update
+     * Does nothing :)
+     */
+    void update(){};
+
+    /**
+     * @brief Moves the fireball along the x and y axis
+     * @return false if the fireball collided with something
+     */
+    bool process_fireball(float dx, float dy);
+
+    /**
+     * @brief Shoots a fireball
+     * @param angle_vertical The vertical angle at which the fireball will be shot
+     */
+    void fire(int angle_vertical);
+
+    /**
+     * @brief Function called when the user right-clicks
+     * @param shift Flag indicating if shift was held when clicking
+     * @param control Flag indicating if ctrl was held when clicking
+     */
+    void right_click(bool shift, bool control);
 };
 
 #endif
