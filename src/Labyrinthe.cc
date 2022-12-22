@@ -35,15 +35,22 @@ Labyrinthe::Labyrinthe(const char* filename) {
     Position::max_x = m_width;
     Position::max_y = m_height;
 
-    // Update the map and correct the object's x positions
+    // Update the map, correct the object's x positions and flip them on the y axis
+
     m_map = std::vector<std::vector<char>>(m_height);
     for (size_t i = 0; i < m_map.size(); i++) {
         m_map[i].resize(m_width, EMPTY);
     }
 
+    const int max_y = m_height - 1;
+    int tmp;
+
     for (Wall& wall : m_walls) {
         wall._x1 -= min_x;
         wall._x2 -= min_x;
+        tmp = wall._y1;
+        wall._y1 = max_y - wall._y2;
+        wall._y2 = max_y - tmp;
         if (wall._x1 == wall._x2) {
             for (int y = wall._y1; y <= wall._y2; y++) {
                 m_map[y][wall._x1] = 1;
@@ -58,23 +65,31 @@ Labyrinthe::Labyrinthe(const char* filename) {
     for (Wall& poster : m_posters) {
         poster._x1 -= min_x;
         poster._x2 -= min_x;
+        tmp = poster._y1;
+        poster._y1 = max_y - poster._y2;
+        poster._y2 = max_y - tmp;
     }
 
     for (Box& box : m_boxes) {
         box._x -= min_x;
+        box._y = max_y - box._y;
         m_map[box._y][box._x] = 1;
     }
 
     for (Box& mark : m_marks) {
         mark._x -= min_x;
+        mark._y = max_y - mark._y;
     }
 
     _treasor._x -= min_x;
+    _treasor._y = max_y - _treasor._y;
     m_map[_treasor._y][_treasor._x] = 1;
 
     m_guards[0]->_x -= min_x * scale;
+    m_guards[0]->_y = (max_y)*scale - m_guards[0]->_y;
     for (size_t i = 1; i < m_guards.size(); i++) {
         m_guards[i]->_x -= min_x * scale;
+        m_guards[i]->_y = (max_y)*scale - m_guards[i]->_y;
         Position p = Position::grid_position(m_guards[i]->_x, m_guards[i]->_y);
         m_map[p.y][p.x] = 1;
     }
