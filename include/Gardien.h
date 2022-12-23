@@ -21,15 +21,20 @@ private:
     };
 
     State m_state = State::patrol;
-    double m_speed = 0.08;
-
-    /**
-     * @brief Converts an angle from degrees to radians
-     */
-    double deg_to_rad(int angle) { return angle * (M_PI / 180.0); }
+    double m_speed = 0.1;
 
 public:
+    /**
+     * @brief Constructor.
+     */
     Gardien(Labyrinthe* l, const char* modele);
+
+    /**
+     * @brief Constructs a guard with a certain amount of hp.
+     * @param hp The starting hp
+     * @param max_hp The hp limit
+     */
+    Gardien(int hp, int max_hp, Labyrinthe* l, const char* modele);
 
     /**
      * @brief Function called at each update

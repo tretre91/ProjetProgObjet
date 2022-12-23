@@ -6,7 +6,9 @@ std::mt19937 Gardien::gen(rd());
 // random_angle(gen) returns a random integer between 0 and 359
 std::uniform_int_distribution<> Gardien::random_angle(0, 359);
 
-Gardien::Gardien(Labyrinthe* l, const char* modele) : Character(120, 80, l, modele) {
+Gardien::Gardien(Labyrinthe* l, const char* modele) : Gardien(100, 100, l, modele) {}
+
+Gardien::Gardien(int hp, int max_hp, Labyrinthe* l, const char* modele) : Character(120, 80, hp, max_hp, l, modele) {
     _angle = random_angle(gen);
 }
 

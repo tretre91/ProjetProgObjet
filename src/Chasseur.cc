@@ -1,6 +1,5 @@
 #include "Chasseur.h"
 #include "Labyrinthe.h"
-#include <fmt/core.h>
 
 Sound* Chasseur::_hunter_fire; // bruit de l'arme du chasseur.
 Sound* Chasseur::_hunter_hit;  // cri du chasseur touché.
@@ -40,8 +39,24 @@ void Chasseur::fire(int angle_vertical) {
 
 
 void Chasseur::right_click(bool shift, bool control) {
-    if (shift)
-        _l->_guards[1]->rester_au_sol();
-    else
-        _l->_guards[1]->tomber();
+    double min_distance = std::numeric_limits<double>::max();
+    Mover* target = nullptr;
+
+    double x, y;
+    double dist;
+
+    for (int i = 1; i < _l->_nguards; i++) {
+        x = _l->_guards[i]->_x;
+        y = _l->_guards[i]->_y;
+        dist = distance(_x, _y, x, y);
+        if (dist < min_distance && looks_at(x, y) && can_see(x, y)) {
+            target = _l->_guards[i];
+            min_distance = dist;
+        }
+    }
+
+    if (target != nullptr) {
+        Character* guard = dynamic_cast<Character*>(target);
+        message("hp: %d", guard->current_hp());
+    }
 }

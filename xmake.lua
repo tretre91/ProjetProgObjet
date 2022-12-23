@@ -58,7 +58,9 @@ rule("custom_config")
 target("labh")
     set_kind("binary")
     add_rules("custom_config")
-    add_cxxflags("-Wall")
+    if is_mode("debug") then
+        add_cxxflags("-Wall", "-Werror", "-Wno-sign-compare") -- todo
+    end
     add_links("fltk_jpeg", "fltk_png", "fltk_z", "fltk_gl", "fltk")
     add_includedirs("include", "include/immutable", "lib/fmt-9.0.0/include")
     add_defines("FMT_HEADER_ONLY")
