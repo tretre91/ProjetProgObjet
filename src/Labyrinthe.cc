@@ -1,6 +1,8 @@
 #include "Labyrinthe.h"
 #include "Chasseur.h"
+#include "DummyMover.h"
 #include "Gardien.h"
+#include "HUD.h"
 #include "Position.h"
 
 #include <cctype>
@@ -15,7 +17,12 @@ Environnement* Environnement::init(char* filename) {
 
     // creation of the labyrinth
     texture_dir = "new_textures";
-    return new Labyrinthe(filename);
+    Labyrinthe* lab = new Labyrinthe(filename);
+
+    // initialization of the hud
+    HUD::init(lab);
+
+    return lab;
 }
 
 
@@ -93,6 +100,8 @@ Labyrinthe::Labyrinthe(const char* filename) {
         Position p = Position::grid_position(m_guards[i]->_x, m_guards[i]->_y);
         m_map[p.y][p.x] = 1;
     }
+
+    m_guards.push_back(new DummyMover(this));
 
 
     // Set the Environment member variables

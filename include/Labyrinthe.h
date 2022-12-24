@@ -36,7 +36,7 @@ private:
      *       be the beginning of the labyrinth.
      *
      * @param file A file stream of the file to parse
-     * @return A map associating a character to a texture's filename
+     * @return A map associating a character to a texture file
      */
     std::unordered_map<char, std::string> parse_header(std::ifstream& file);
 

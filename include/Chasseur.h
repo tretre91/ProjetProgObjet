@@ -28,9 +28,9 @@ public:
 
     /**
      * @brief Function called at each update
-     * Does nothing :)
+     * Updates the HUD
      */
-    void update(){};
+    void update();
 
     /**
      * @brief Moves the fireball along the x and y axis
