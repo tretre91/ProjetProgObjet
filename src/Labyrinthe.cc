@@ -16,7 +16,7 @@ Environnement* Environnement::init(char* filename) {
 	Chasseur::_wall_hit = new Sound("sons/hit_wall.wav");       // on a tapé un mur.
 
 	// creation of the labyrinth
-	texture_dir = "textures";
+	texture_dir = "textures/backrooms";
 	Labyrinthe* lab = new Labyrinthe(filename);
 
 	// initialization of the hud
