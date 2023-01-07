@@ -23,12 +23,19 @@ bool Chasseur::process_fireball(float dx, float dy) {
 	float dist2 = x * x + y * y;
 	HUD::clear();
 	// on bouge que dans le vide!
-	if (EMPTY == _l->data((int)((_fb->get_x() + dx) / Environnement::scale), (int)((_fb->get_y() + dy) / Environnement::scale))) {
+	const int new_x = static_cast<int>((_fb->get_x() + dx) / Environnement::scale);
+	const int new_y = static_cast<int>((_fb->get_y() + dy) / Environnement::scale);
+	const char target = _l->data(new_x, new_y);
+	if (EMPTY == target) {
 		HUD::add_message(fmt::format("Woooshh ..... {}", static_cast<int>(dist2)));
 		// il y a la place.
 		return true;
 	}
+
 	// collision...
+	if (target > 1) {
+		dynamic_cast<Character*>(_l->_guards[target-1])->hit(20);
+	}
 	// calculer la distance maximum en ligne droite.
 	float dmax2 = (_l->width()) * (_l->width()) + (_l->height()) * (_l->height());
 	// faire exploser la boule de feu avec un bruit fonction de la distance.

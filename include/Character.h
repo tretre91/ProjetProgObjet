@@ -93,6 +93,8 @@ public:
 	 */
 	int& current_hp() { return m_hp; }
 
+	void hit(int dmg);
+
 	/**
 	 * @brief Returns this character's maximum health.
 	 */

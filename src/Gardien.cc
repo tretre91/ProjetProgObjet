@@ -1,4 +1,5 @@
 #include "Gardien.h"
+#include <Labyrinthe.h>
 #include <cmath>
 
 std::random_device Gardien::rd;
@@ -13,6 +14,16 @@ Gardien::Gardien(int hp, int max_hp, Labyrinthe* l, const char* modele) : Charac
 }
 
 void Gardien::update() {
+	// we move the guard off map if he is dead
+	if (m_state != State::dead && m_hp <= 0) {
+		m_state = State::dead;
+		rester_au_sol();
+		auto [x, y] = Position::grid_position(_x, _y);
+		dynamic_cast<Labyrinthe*>(_l)->mut_data(x, y) = EMPTY;
+		_x = -1;
+		_y = -1;
+	}
+
 	double angle = deg_to_rad(_angle);
 	double dx;
 	double dy;

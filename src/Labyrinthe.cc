@@ -98,7 +98,7 @@ Labyrinthe::Labyrinthe(const char* filename) {
 		m_guards[i]->_x -= min_x * scale;
 		m_guards[i]->_y = (max_y)*scale - m_guards[i]->_y;
 		Position p = Position::grid_position(m_guards[i]->_x, m_guards[i]->_y);
-		m_map[p.y][p.x] = 1;
+		m_map[p.y][p.x] = i+1;
 	}
 
 	m_guards.push_back(new DummyMover(this));
