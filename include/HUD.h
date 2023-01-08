@@ -29,17 +29,17 @@ private:
 
 	using time_point = std::chrono::high_resolution_clock::time_point;
 
-	static Labyrinthe* labyrinth;
-	static std::string data;
+	static Labyrinthe* _labyrinth;
+	static std::string _data;
 	// additional messages
-	static std::list<std::string> messages;
-	static std::multimap<time_point, std::list<std::string>::iterator> temporary_messages;
+	static std::list<std::string> _messages;
+	static std::multimap<time_point, std::list<std::string>::iterator> _temporary_messages;
 	// currently focused guard
-	static Character* focused_guard;
-	static time_point focused_guard_timeout;
+	static Character* _focused_guard;
+	static time_point _focused_guard_timeout;
 	// cache things
-	static Cache cache;
-	static bool redraw;
+	static Cache _cache;
+	static bool _redraw;
 
 	/**
 	 * @brief Refreshes the cache.
@@ -86,7 +86,7 @@ public:
 	 * @brief Forces the hud to be refreshed.
 	 * The hud will be re-drawn at the next update
 	 */
-	static void refresh() { redraw = true; };
+	static void refresh() { _redraw = true; };
 };
 
 #endif

@@ -11,11 +11,11 @@
 class Labyrinthe : public Environnement
 {
 private:
-	std::vector<std::vector<char>> m_map;
-	int m_width;
-	int m_height;
+	std::vector<std::vector<char>> _map;
+	int _width;
+	int _height;
 
-	std::vector<Wall> m_walls;
+	std::vector<Wall> m_walls; // TODO: rename with smtg else
 	std::vector<Wall> m_posters;
 	std::vector<Box> m_boxes;
 	std::vector<Box> m_marks;
@@ -58,22 +58,22 @@ public:
 	/**
 	 * @brief Return the labyrinth's width.
 	 */
-	int width() { return m_width; }
+	int width() { return _width; }
 
 	/**
 	 * @brief Return the labyrinth's height.
 	 */
-	int height() { return m_height; }
+	int height() { return _height; }
 
 	/**
 	 * @brief Return the cell at position (x, y).
 	 */
-	char data(int x, int y) { return m_map[y][x]; }
+	char data(int x, int y) { return _map[y][x]; }
 
 	/**
 	 * @brief Return a reference to the cell at position (x, y)
 	 */
-	char& mut_data(int x, int y) { return m_map[y][x]; }
+	char& mut_data(int x, int y) { return _map[y][x]; }
 };
 
 #endif

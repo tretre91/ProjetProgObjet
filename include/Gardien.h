@@ -1,5 +1,5 @@
-#ifndef GARDIEN_H
-#define GARDIEN_H
+#ifndef LAB_GARDIEN_H
+#define LAB_GARDIEN_H
 
 #include "Character.h"
 #include <random>
@@ -10,18 +10,21 @@ class Gardien : public Character
 {
 private:
 	// variables used to generate random angles
-	static std::random_device rd;
-	static std::mt19937 gen;
-	static std::uniform_int_distribution<> random_angle;
+	static std::random_device _rd;
+	static std::mt19937 _gen;
+	static std::uniform_int_distribution<> _random_angle;
 
+	/**
+	 * @brief Enum for the different states of a guard
+	 */
 	enum class State {
 		patrol,
 		attack,
 		dead
 	};
 
-	State m_state = State::patrol;
-	double m_speed = 0.1;
+	State _state = State::patrol;
+	double _speed = 0.1;
 
 public:
 	/**

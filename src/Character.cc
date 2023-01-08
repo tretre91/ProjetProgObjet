@@ -12,9 +12,9 @@ bool Character::move_aux(double dx, double dy) {
 	const Position source = Position::grid_position(_x, _y);
 	const Position target = Position::grid_position(_x + dx, _y + dy);
 
-	char& target_cell = m_labyrinth->mut_data(target.x, target.y);
+	char& target_cell = _labyrinth->mut_data(target.x, target.y);
 	if (source == target || EMPTY == target_cell) {
-		char& source_cell = m_labyrinth->mut_data(source.x, source.y);
+		char& source_cell = _labyrinth->mut_data(source.x, source.y);
 		std::swap(source_cell, target_cell); // TODO
 		_x += dx;
 		_y += dy;
@@ -25,10 +25,6 @@ bool Character::move_aux(double dx, double dy) {
 
 bool Character::try_move(double dx, double dy) {
 	return move_aux(dx, dy) || move_aux(dx, 0.0) || move_aux(0.0, dy);
-}
-
-void Character::hit(int dmg) {
-	m_hp -= dmg;
 }
 
 /**
@@ -43,7 +39,7 @@ bool Character::bresenham_collision(int x1, int y1, int x2, int y2) const {
 	int e2;
 
 	while (x1 != x2 || y1 != y2) {
-		if (m_labyrinth->data(x1, y1) != EMPTY) {
+		if (_labyrinth->data(x1, y1) != EMPTY) {
 			return true;
 		}
 
@@ -84,18 +80,18 @@ bool Character::can_see(const Position& target) const {
 
 	// We temporarily empty the target and source cell just in case x1 and x2 (or y1 and y2) get swapped
 	// (as the algorithm would potentially start on an occupied cell and return false immediately)
-	char& source_cell = m_labyrinth->mut_data(x1, y1);
+	char& source_cell = _labyrinth->mut_data(x1, y1);
 	const char original_source_cell = source_cell;
 	source_cell = EMPTY;
 
-	char& target_cell = m_labyrinth->mut_data(x2, y2);
+	char& target_cell = _labyrinth->mut_data(x2, y2);
 	const char original_target_cell = target_cell;
 	target_cell = EMPTY;
 
-	bool no_objects = !bresenham_collision(x1, y1, x2, y2);
+	bool no_obstacles = !bresenham_collision(x1, y1, x2, y2);
 
 	source_cell = original_source_cell;
 	target_cell = original_target_cell;
 
-	return no_objects;
+	return no_obstacles;
 }

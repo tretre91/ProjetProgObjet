@@ -12,7 +12,7 @@
 class Character : public Mover
 {
 private:
-	Labyrinthe* m_labyrinth;
+	Labyrinthe* _labyrinth;
 
 	/**
 	 * @brief Tells wheter there is an object (cell != EMPTY) between two positions.
@@ -23,8 +23,8 @@ private:
 	bool bresenham_collision(int x1, int y1, int x2, int y2) const;
 
 protected:
-	int m_max_hp = 100;
-	int m_hp = 100;
+	int _max_hp = 100;
+	int _hp = 100;
 
 	/**
 	 * @brief Converts an angle from degrees to radians.
@@ -76,29 +76,28 @@ public:
 	 * @brief Constructor, forwards the arguments to the Mover constructor.
 	 * This constructors initializes a character with 100/100 hp
 	 */
-	Character(int x, int y, Labyrinthe* l, const char* modele) : Mover(x, y, l, modele), m_labyrinth(l) {}
+	Character(int x, int y, Labyrinthe* l, const char* modele) : Mover(x, y, l, modele), _labyrinth(l) {}
 
 	/**
 	 * @brief Constructs a Character with a certain number (and a certain limit) of health points.
 	 */
-	Character(int x, int y, int hp, int max_hp, Labyrinthe* l, const char* modele) : Mover(x, y, l, modele), m_labyrinth(l), m_max_hp(max_hp), m_hp(hp) {}
+	Character(int x, int y, int hp, int max_hp, Labyrinthe* l, const char* modele) : Mover(x, y, l, modele), _labyrinth(l), _max_hp(max_hp), _hp(hp) {}
 
 	/**
 	 * @brief Returns this character's current amount of health points.
 	 */
-	int current_hp() const { return m_hp; }
+	int hp() const { return _hp; }
 
 	/**
-	 * @brief Returns a reference to this character's hp count.
+	 * @brief Decreases the hp of this character by a certain amount.
+	 * @param dmg The amount of damages this character takes, its hp will be c.hp() - dmg.
 	 */
-	int& current_hp() { return m_hp; }
-
-	void hit(int dmg);
+	void hit(int dmg) { _hp -= dmg; }
 
 	/**
 	 * @brief Returns this character's maximum health.
 	 */
-	int max_hp() const { return m_max_hp; }
+	int max_hp() const { return _max_hp; }
 };
 
 #endif

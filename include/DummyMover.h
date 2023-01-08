@@ -12,15 +12,17 @@
 class DummyMover : public Mover
 {
 private:
-	inline static bool is_instanciated = false;
+	inline static bool _is_instanciated = false;
 
 public:
 	DummyMover(Labyrinthe* l) : Mover(-10, -10, l, "Blade") {
-		if (is_instanciated) {
+		if (_is_instanciated) {
 			throw std::runtime_error("Only 1 dummy guard can be instanciated");
 		}
-		is_instanciated = true;
+		_is_instanciated = true;
 	}
+
+	~DummyMover() { _is_instanciated = false; }
 
 	void update() override { _l->_guards[0]->update(); }
 

@@ -39,17 +39,17 @@ Labyrinthe::Labyrinthe(const char* filename) {
 	fmt::print(stderr, "Done!\n");
 
 	// initialization of the Position class
-	Position::max_x = m_width;
-	Position::max_y = m_height;
+	Position::_max_x = _width;
+	Position::_max_y = _height;
 
 	// Update the map, correct the object's x positions and flip them on the y axis
 
-	m_map = std::vector<std::vector<char>>(m_height);
-	for (size_t i = 0; i < m_map.size(); i++) {
-		m_map[i].resize(m_width, EMPTY);
+	_map = std::vector<std::vector<char>>(_height);
+	for (size_t i = 0; i < _map.size(); i++) {
+		_map[i].resize(_width, EMPTY);
 	}
 
-	const int max_y = m_height - 1;
+	const int max_y = _height - 1;
 	int tmp;
 
 	for (Wall& wall : m_walls) {
@@ -60,11 +60,11 @@ Labyrinthe::Labyrinthe(const char* filename) {
 		wall._y2 = max_y - tmp;
 		if (wall._x1 == wall._x2) {
 			for (int y = wall._y1; y <= wall._y2; y++) {
-				m_map[y][wall._x1] = 1;
+				_map[y][wall._x1] = 1;
 			}
 		} else {
 			for (int x = wall._x1; x <= wall._x2; x++) {
-				m_map[wall._y1][x] = 1;
+				_map[wall._y1][x] = 1;
 			}
 		}
 	}
@@ -80,7 +80,7 @@ Labyrinthe::Labyrinthe(const char* filename) {
 	for (Box& box : m_boxes) {
 		box._x -= min_x;
 		box._y = max_y - box._y;
-		m_map[box._y][box._x] = 1;
+		_map[box._y][box._x] = 1;
 	}
 
 	for (Box& mark : m_marks) {
@@ -90,7 +90,7 @@ Labyrinthe::Labyrinthe(const char* filename) {
 
 	_treasor._x -= min_x;
 	_treasor._y = max_y - _treasor._y;
-	m_map[_treasor._y][_treasor._x] = 1;
+	_map[_treasor._y][_treasor._x] = 1;
 
 	m_guards[0]->_x -= min_x * scale;
 	m_guards[0]->_y = (max_y)*scale - m_guards[0]->_y;
@@ -98,7 +98,7 @@ Labyrinthe::Labyrinthe(const char* filename) {
 		m_guards[i]->_x -= min_x * scale;
 		m_guards[i]->_y = (max_y)*scale - m_guards[i]->_y;
 		Position p = Position::grid_position(m_guards[i]->_x, m_guards[i]->_y);
-		m_map[p.y][p.x] = i+1;
+		_map[p.y][p.x] = i+1;
 	}
 
 	m_guards.push_back(new DummyMover(this));
@@ -287,8 +287,8 @@ int Labyrinthe::parse(std::ifstream& file) {
 		y++;
 	}
 
-	m_width = max_x - min_x + 1;
-	m_height = y;
+	_width = max_x - min_x + 1;
+	_height = y;
 
 	return min_x;
 }

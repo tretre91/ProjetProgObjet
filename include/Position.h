@@ -8,8 +8,8 @@ struct Position {
 private:
 	// variables set to the max dimensions of the labyrinth
 	// used in the grid_position method
-	static int max_x;
-	static int max_y;
+	static int _max_x;
+	static int _max_y;
 	friend class Labyrinthe;
 
 public:
