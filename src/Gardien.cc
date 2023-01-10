@@ -1,4 +1,5 @@
 #include "Gardien.h"
+#include "Character.h"
 #include <Labyrinthe.h>
 #include <cmath>
 
@@ -24,22 +25,30 @@ void Gardien::update() {
 		_y = -1;
 	}
 
-	double angle = deg_to_rad(_angle);
-	double dx;
-	double dy;
+	if (_state == State::dead) {
+		return;
+	}
+
+	Mover* hunter = _l->_guards[0];
+	if (can_see(hunter->_x, hunter->_y)) {
+		_state = State::attack;
+	} else {
+		_state = State::patrol;
+	}
+
+	double angle = deg_to_rad(get_angle());
+
 	switch (_state) {
 	case State::patrol:
-		dx = _speed * std::cos(angle);
-		dy = _speed * std::sin(angle);
-
-		while (!move_aux(dx, dy)) {
-			_angle = _random_angle(_gen);
-			angle = deg_to_rad(_angle);
-			dx = _speed * std::cos(angle);
-			dy = _speed * std::sin(angle);
+		while (!move_aux(_speed * std::cos(angle), _speed * std::sin(angle))) {
+			set_angle(_random_angle(_gen));
+			angle = deg_to_rad(get_angle());
 		}
 		break;
 	case State::attack:
+		angle = std::atan2(hunter->_y - _y, hunter->_x - _x);
+		set_angle(rad_to_deg(angle));
+		move(_speed * std::cos(angle), _speed * std::sin(angle));
 		break;
 	default:
 		break;

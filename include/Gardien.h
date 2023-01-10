@@ -24,7 +24,7 @@ private:
 	};
 
 	State _state = State::patrol;
-	double _speed = 0.1;
+	double _speed = 0.2;
 
 public:
 	/**

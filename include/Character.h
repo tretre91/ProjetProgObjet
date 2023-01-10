@@ -26,10 +26,17 @@ protected:
 	int _max_hp = 100;
 	int _hp = 100;
 
+	// TODO: Move these utility funtions to a dedicated module
+
 	/**
 	 * @brief Converts an angle from degrees to radians.
 	 */
 	static double deg_to_rad(int angle) { return angle * (M_PI / 180.0); }
+
+	/**
+	 * @brief Converts an angle from radians to degrees.
+	 */
+	static double rad_to_deg(double angle) { return angle * (180.0 / M_PI); }
 
 	/**
 	 * @brief Returns the euclidean distance between two points.
@@ -44,8 +51,7 @@ protected:
 
 	/**
 	 * @brief Attemps to move the character, slides along obstacles.
-	 * @return true J'ai aucune idée de ce que signifie la valeur de retour
-	 * @return false Si seulement on avait accès aux sources, à défaut d'avoir une bonnne doc ...
+	 * @return true if the character moved, false otherwise
 	 */
 	bool try_move(double dx, double dy);
 
@@ -98,6 +104,19 @@ public:
 	 * @brief Returns this character's maximum health.
 	 */
 	int max_hp() const { return _max_hp; }
+
+	/**
+	 * @brief Get the character's angle.
+	 * @return The character's angle, in degrees
+	 */
+	int get_angle() const { return _angle + 90; }
+
+
+	/**
+	 * @brief Set the character's angle.
+	 * @param angle The angle in degrees
+	 */
+	void set_angle(int angle) { _angle = angle - 90; }
 };
 
 #endif
