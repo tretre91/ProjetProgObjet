@@ -130,6 +130,6 @@ SpaceBeforeSquareBrackets: false
 Standard:        Latest
 TabWidth:        4
 UseCRLF:         false
-UseTab:          Never
+UseTab:          AlignWithSpaces
 ...
 
