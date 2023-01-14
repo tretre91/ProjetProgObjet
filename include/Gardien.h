@@ -25,6 +25,7 @@ private:
 
 	State _state = State::patrol;
 	double _speed = 0.2;
+	double _range = 100.;
 
 public:
 	/**
@@ -43,7 +44,7 @@ public:
 	 * @brief Function called at each update
 	 * Moves the guard and checks for a change of state
 	 */
-	void update();
+	void update() override;
 
 	/**
 	 * @brief Attemps to move a guard along the x and y axis
@@ -53,20 +54,32 @@ public:
 	 * it.
 	 * @return true If the guard has moved
 	 */
-	bool move(double dx, double dy);
+	bool move(double dx, double dy) override;
 
 	/**
 	 * @brief Method used to make a guard shoot
 	 * @note does nothing for the moment
 	 * @param vertical_angle The vertical angle at which the fireball will be shot
 	 */
-	void fire(int angle_vertical);
+	void fire(int angle_vertical) override;
 
 	/**
 	 * @brief Moves the fireball along the x and y axis
 	 * @return false if the fireball collided with something
 	 */
-	bool process_fireball(float dx, float dy);
+	bool process_fireball(float dx, float dy) override;
+
+	/**
+	 * @brief Get this guard's angle in degrees.
+	 * @return The guards angle in my coordinate system (0° on the x+ axis, counter-clockwise rotation)
+	 */
+	int get_angle() const override { return normalize_angle(_angle + 90); }
+
+	/**
+	 * @brief Set this guard's angle.
+	 * @param angle An angle in degrees in my coordinate system (0° on the x+ axis, counter-clockwise rotation)
+	 */
+	void set_angle(int angle) override { _angle = normalize_angle(angle - 90); }
 };
 
 #endif

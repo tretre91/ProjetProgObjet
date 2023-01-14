@@ -1,6 +1,7 @@
 #include "Character.h"
 #include "Labyrinthe.h"
 #include "Position.h"
+#include <cmath>
 
 double Character::distance(double x1, double y1, double x2, double y2) {
 	const double dx = x2 - x1;
@@ -65,12 +66,7 @@ bool Character::bresenham_collision(int x1, int y1, int x2, int y2) const {
 }
 
 bool Character::looks_at(double x, double y, double err) const {
-	const double dx = x - _x;
-	const double dy = y - _y;
-	const double distance = std::sqrt(dx * dx + dy * dy);
-	const double angle = deg_to_rad(_angle - 90);
-	// we invert the sin because the y axis points downwards
-	return std::abs(distance * std::cos(angle) - dx) < err && std::abs(distance * -std::sin(angle) - dy) < err;
+	return std::abs(get_angle() - normalize_angle(rad_to_deg(std::atan2(y - _y, x - _x)))) < err;
 }
 
 

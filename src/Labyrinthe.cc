@@ -17,6 +17,7 @@ Environnement* Environnement::init(char* filename) {
 
 	// creation of the labyrinth
 	texture_dir = "textures/backrooms";
+	modele_dir = "modeles";
 	Labyrinthe* lab = new Labyrinthe(filename);
 
 	// initialization of the hud
@@ -33,6 +34,7 @@ Labyrinthe::Labyrinthe(const char* filename) {
 	}
 
 	m_guards.push_back(new Chasseur(this));
+	m_guards.push_back(new DummyMover(this));
 
 	fmt::print(stderr, "Parsing {} ...\n", filename);
 	int min_x = parse(file);
@@ -42,22 +44,16 @@ Labyrinthe::Labyrinthe(const char* filename) {
 	Position::_max_x = _width;
 	Position::_max_y = _height;
 
-	// Update the map, correct the object's x positions and flip them on the y axis
+	// Update the map and correct the object's x positions
 
 	_map = std::vector<std::vector<char>>(_height);
 	for (size_t i = 0; i < _map.size(); i++) {
 		_map[i].resize(_width, EMPTY);
 	}
 
-	const int max_y = _height - 1;
-	int tmp;
-
 	for (Wall& wall : m_walls) {
 		wall._x1 -= min_x;
 		wall._x2 -= min_x;
-		tmp = wall._y1;
-		wall._y1 = max_y - wall._y2;
-		wall._y2 = max_y - tmp;
 		if (wall._x1 == wall._x2) {
 			for (int y = wall._y1; y <= wall._y2; y++) {
 				_map[y][wall._x1] = 1;
@@ -72,39 +68,31 @@ Labyrinthe::Labyrinthe(const char* filename) {
 	for (Wall& poster : m_posters) {
 		poster._x1 -= min_x;
 		poster._x2 -= min_x;
-		tmp = poster._y1;
-		poster._y1 = max_y - poster._y2;
-		poster._y2 = max_y - tmp;
 	}
 
 	for (Box& box : m_boxes) {
 		box._x -= min_x;
-		box._y = max_y - box._y;
 		_map[box._y][box._x] = 1;
 	}
 
 	for (Box& mark : m_marks) {
 		mark._x -= min_x;
-		mark._y = max_y - mark._y;
 	}
 
 	_treasor._x -= min_x;
-	_treasor._y = max_y - _treasor._y;
 	_map[_treasor._y][_treasor._x] = 1;
 
 	m_guards[0]->_x -= min_x * scale;
-	m_guards[0]->_y = (max_y)*scale - m_guards[0]->_y;
-	for (size_t i = 1; i < m_guards.size(); i++) {
+	auto [gx, gy] = Position::grid_position(m_guards[0]->_x, m_guards[0]->_y);
+	_map[gy][gx] = 1;
+
+	for (size_t i = 2; i < m_guards.size(); i++) {
 		m_guards[i]->_x -= min_x * scale;
-		m_guards[i]->_y = (max_y)*scale - m_guards[i]->_y;
 		Position p = Position::grid_position(m_guards[i]->_x, m_guards[i]->_y);
-		_map[p.y][p.x] = i+1;
+		_map[p.y][p.x] = i;
 	}
 
-	m_guards.push_back(new DummyMover(this));
-
-
-	// Set the Environment member variables
+	// Set the Environnement member variables
 	_walls = m_walls.data();
 	_nwall = m_walls.size();
 	_picts = m_posters.data();
@@ -229,7 +217,7 @@ int Labyrinthe::parse(std::ifstream& file) {
 				break;
 			case 'G':
 				{
-					Mover* guardian = new Gardien(this, "Samourai"); // TODO "Lezard","Blade","Serpent","Samourai"
+					Mover* guardian = new Gardien(this, "Carrot"); // TODO "Lezard","Blade","Serpent","Samourai"
 					m_guards.push_back(guardian);
 					guardian->_x = x * scale;
 					guardian->_y = y * scale;

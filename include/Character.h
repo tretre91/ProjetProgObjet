@@ -3,6 +3,7 @@
 
 #include "Mover.h"
 #include "Position.h"
+#include <cmath>
 
 /**
  * @brief Class implementing a character
@@ -36,7 +37,13 @@ protected:
 	/**
 	 * @brief Converts an angle from radians to degrees.
 	 */
-	static double rad_to_deg(double angle) { return angle * (180.0 / M_PI); }
+	static int rad_to_deg(double angle) { return std::round(angle * (180.0 / M_PI)); }
+
+	/**
+	 * @brief Normalizes an angle in degrees
+	 * @return The equivalent angle in the range [0, 360)
+	 */
+	static int normalize_angle(int angle) { return (angle % 360 + 360) % 360; }
 
 	/**
 	 * @brief Returns the euclidean distance between two points.
@@ -109,14 +116,14 @@ public:
 	 * @brief Get the character's angle.
 	 * @return The character's angle, in degrees
 	 */
-	int get_angle() const { return _angle + 90; }
+	virtual int get_angle() const { return _angle; }
 
 
 	/**
 	 * @brief Set the character's angle.
 	 * @param angle The angle in degrees
 	 */
-	void set_angle(int angle) { _angle = angle - 90; }
+	virtual void set_angle(int angle) { _angle = angle; }
 };
 
 #endif

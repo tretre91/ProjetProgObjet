@@ -34,7 +34,8 @@ bool Chasseur::process_fireball(float dx, float dy) {
 
 	// collision...
 	if (target > 1) {
-		dynamic_cast<Character*>(_l->_guards[target-1])->hit(20);
+		// TODO
+		dynamic_cast<Character*>(_l->_guards[static_cast<int>(target)])->hit(20);
 	}
 	// calculer la distance maximum en ligne droite.
 	float dmax2 = (_l->width()) * (_l->width()) + (_l->height()) * (_l->height());
@@ -65,11 +66,11 @@ void Chasseur::right_click(bool shift, bool control) {
 	double x, y;
 	double dist;
 
-	for (int i = 1; i < _l->_nguards - 1; i++) {
+	for (int i = 2; i < _l->_nguards; i++) {
 		x = _l->_guards[i]->_x;
 		y = _l->_guards[i]->_y;
 		dist = distance(_x, _y, x, y);
-		if (dist < min_distance && looks_at(x, y) && can_see(x, y)) {
+		if (dist < min_distance && looks_at(x, y, 10) && can_see(x, y)) {
 			target = _l->_guards[i];
 			min_distance = dist;
 		}

@@ -23,7 +23,6 @@ A player hunting a treasure and fighting guards in  maze
 - Patrol (randow walk)
   A guard has an angle, his angle changes randomly when he hits an obstacle
 - Attack (shoots you, goes in your direction), + bruit d'alarme incendie quand il voit le joueur
-- Inflate the textures
 
 A guard goes in attack mode when he sees the player
 A guard cannot see beyond a box

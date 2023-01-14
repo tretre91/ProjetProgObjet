@@ -1,5 +1,6 @@
 #include "Gardien.h"
 #include "Character.h"
+#include "Environnement.h"
 #include <Labyrinthe.h>
 #include <cmath>
 
@@ -15,7 +16,7 @@ Gardien::Gardien(int hp, int max_hp, Labyrinthe* l, const char* modele) : Charac
 }
 
 void Gardien::update() {
-	// we move the guard off map if he is dead
+	// we move the guard off map if it is dead
 	if (_state != State::dead && _hp <= 0) {
 		_state = State::dead;
 		rester_au_sol();
@@ -30,7 +31,7 @@ void Gardien::update() {
 	}
 
 	Mover* hunter = _l->_guards[0];
-	if (can_see(hunter->_x, hunter->_y)) {
+	if (looks_at(hunter->_x, hunter->_y, 5) && can_see(hunter->_x, hunter->_y)) {
 		_state = State::attack;
 	} else {
 		_state = State::patrol;
@@ -41,14 +42,16 @@ void Gardien::update() {
 	switch (_state) {
 	case State::patrol:
 		while (!move_aux(_speed * std::cos(angle), _speed * std::sin(angle))) {
-			set_angle(_random_angle(_gen));
+			_angle = _random_angle(_gen);
 			angle = deg_to_rad(get_angle());
 		}
 		break;
 	case State::attack:
 		angle = std::atan2(hunter->_y - _y, hunter->_x - _x);
 		set_angle(rad_to_deg(angle));
-		move(_speed * std::cos(angle), _speed * std::sin(angle));
+		if (distance(_x, _y, hunter->_x, hunter->_y) > _range) {
+			move(_speed * std::cos(angle), _speed * std::sin(angle));
+		}
 		break;
 	default:
 		break;
