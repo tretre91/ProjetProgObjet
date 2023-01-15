@@ -20,6 +20,7 @@ enum class CellType {
 struct Cell {
 	CellType _type = CellType::empty;
 	int _index = -1;
+	int _mark_index = -1;
 
 	/**
 	 * @brief Default constructor, creates an empty cell with its index at -1.
@@ -39,7 +40,11 @@ struct Cell {
 	 * @param type The cell's type
 	 * @param index The associated index (e.g. the guard's index in the `_guards` list for a guard cell)
 	 */
-	Cell(CellType type, int index) : _type(type), _index(index) {}
+	Cell(CellType type, int index) : _type(type), _index(index) {
+		if (type == CellType::mark) {
+			_mark_index = _index;
+		}
+	}
 
 	/**
 	 * @brief Tells whether a cell is empty.

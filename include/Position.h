@@ -24,6 +24,7 @@ public:
 	Position() = default;
 	Position(int x, int y) : x(x), y(y) {}
 	friend bool operator==(const Position& lhs, const Position& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; }
+	friend bool operator!=(const Position& lhs, const Position& rhs) { return !(lhs == rhs); }
 };
 
 #endif

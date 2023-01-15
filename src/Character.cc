@@ -15,14 +15,29 @@ bool Character::move_aux(double dx, double dy) {
 	const Position target = Position::grid_position(_x + dx, _y + dy);
 
 	Cell& target_cell = _labyrinth->cell(target.x, target.y);
-	if (source == target || target_cell.is_empty()) { // TODO: Urgent, gèrer les marques
-		Cell& source_cell = _labyrinth->cell(source.x, source.y);
-		std::swap(source_cell, target_cell); // TODO
-		_x += dx;
-		_y += dy;
-		return true;
+
+	if (source != target && !target_cell.is_empty()) {
+		return false;
 	}
-	return false;
+
+	_x += dx;
+	_y += dy;
+
+	if (source != target) {
+		Cell& source_cell = _labyrinth->cell(source.x, source.y);
+
+		target_cell._type = source_cell._type;
+		target_cell._index = source_cell._index;
+
+		if (source_cell._mark_index != -1) {
+			source_cell._type = CellType::mark;
+			source_cell._index = source_cell._mark_index;
+		} else {
+			source_cell._type = CellType::empty;
+		}
+	}
+
+	return true;
 }
 
 bool Character::try_move(double dx, double dy) {
