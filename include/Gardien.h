@@ -57,13 +57,6 @@ public:
 	bool move(double dx, double dy) override;
 
 	/**
-	 * @brief Method used to make a guard shoot
-	 * @note does nothing for the moment
-	 * @param vertical_angle The vertical angle at which the fireball will be shot
-	 */
-	void fire(int angle_vertical) override;
-
-	/**
 	 * @brief Moves the fireball along the x and y axis
 	 * @return false if the fireball collided with something
 	 */

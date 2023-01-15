@@ -2,18 +2,12 @@
 #define CHASSEUR_H
 
 #include "Character.h"
-#include "Sound.h"
 
 class Labyrinthe;
 
 class Chasseur : public Character
 {
 public:
-	// The sounds of the hunter
-	static Sound* _hunter_fire; // bruit de l'arme du chasseur.
-	static Sound* _hunter_hit;  // cri du chasseur touché.
-	static Sound* _wall_hit;    // on a tapé un mur.
-
 	/**
 	 * @brief Construct a new Chasseur object
 	 */
@@ -37,12 +31,6 @@ public:
 	 * @return false if the fireball collided with something
 	 */
 	bool process_fireball(float dx, float dy) override;
-
-	/**
-	 * @brief Shoots a fireball
-	 * @param angle_vertical The vertical angle at which the fireball will be shot
-	 */
-	void fire(int angle_vertical) override;
 
 	/**
 	 * @brief Get the hunter's angle.

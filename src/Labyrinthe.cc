@@ -1,5 +1,6 @@
 #include "Labyrinthe.h"
 #include "Cell.h"
+#include "Character.h"
 #include "Chasseur.h"
 #include "DummyMover.h"
 #include "Gardien.h"
@@ -11,15 +12,13 @@
 #include <limits>
 
 Environnement* Environnement::init(char* filename) {
-	// initialization of the sound objects
-	Chasseur::_hunter_fire = new Sound("sons/hunter_fire.wav"); // bruit de l'arme du chasseur.
-	Chasseur::_hunter_hit = new Sound("sons/hunter_hit.wav");   // cri du chasseur touché.
-	Chasseur::_wall_hit = new Sound("sons/hit_wall.wav");       // on a tapé un mur.
-
 	// creation of the labyrinth
 	texture_dir = "textures/backrooms";
 	modele_dir = "modeles";
 	Labyrinthe* lab = new Labyrinthe(filename);
+
+	// initialization of the character class' static attributes
+	Character::init(lab);
 
 	// initialization of the hud
 	HUD::init(lab);
@@ -112,10 +111,6 @@ Labyrinthe::~Labyrinthe() {
 	for (Mover* m : m_guards) {
 		delete m;
 	}
-
-	delete Chasseur::_hunter_fire;
-	delete Chasseur::_hunter_hit;
-	delete Chasseur::_wall_hit;
 }
 
 int Labyrinthe::texture_id(const std::string& filename) {

@@ -1,6 +1,7 @@
 #ifndef LAB_CHARACTER_H
 #define LAB_CHARACTER_H
 
+#include "Audio.h"
 #include "Mover.h"
 #include "Position.h"
 #include <cmath>
@@ -14,6 +15,7 @@ class Character : public Mover
 {
 private:
 	Labyrinthe* _labyrinth;
+	static double _max_distance;
 
 	/**
 	 * @brief Tells wheter there is an object (cell != EMPTY) between two positions.
@@ -24,8 +26,13 @@ private:
 	bool bresenham_collision(int x1, int y1, int x2, int y2) const;
 
 protected:
+	static Sound* _wall_hit_sound;
+
 	int _max_hp = 100;
 	int _hp = 100;
+	bool _fireball_ready = true;
+	Sound* _fire_sound;
+	Sound* _hit_sound;
 
 	// TODO: Move these utility funtions to a dedicated module
 
@@ -86,10 +93,22 @@ protected:
 
 public:
 	/**
+	 * @brief Initializes the static attributes.
+	 * @param l The labyrinth
+	 */
+	static void init(Labyrinthe* l);
+
+	/**
+	 * @brief Get the volume at which a sound should be played given its position.
+	 * @return Return a volume which increases as the distance from the hunter decreases
+	 */
+	float get_volume(double x, double y);
+
+	/**
 	 * @brief Constructor, forwards the arguments to the Mover constructor.
 	 * This constructors initializes a character with 100/100 hp
 	 */
-	Character(int x, int y, Labyrinthe* l, const char* modele) : Mover(x, y, l, modele), _labyrinth(l) {}
+	Character(int x, int y, Labyrinthe* l, const char* modele) : Character(x, y, 100, 100, l, modele) {}
 
 	/**
 	 * @brief Constructs a Character with a certain number (and a certain limit) of health points.
@@ -103,9 +122,10 @@ public:
 
 	/**
 	 * @brief Decreases the hp of this character by a certain amount.
-	 * @param dmg The amount of damages this character takes, its hp will be c.hp() - dmg.
+	 * @param dmg The amount of damages this character takes, its hp will be c.hp() - dmg
+	 * @param play_soud Tells whether the Character's hit sound should be played
 	 */
-	void hit(int dmg) { _hp -= dmg; }
+	void hit(int dmg, bool play_sound = true);
 
 	/**
 	 * @brief Returns this character's maximum health.
@@ -118,12 +138,17 @@ public:
 	 */
 	virtual int get_angle() const { return _angle; }
 
-
 	/**
 	 * @brief Set the character's angle.
 	 * @param angle The angle in degrees
 	 */
 	virtual void set_angle(int angle) { _angle = angle; }
+
+	/**
+	 * @brief Shoots a fireball
+	 * @param vertical_angle The vertical angle at which the fireball will be shot
+	 */
+	virtual void fire(int vertical_angle) override;
 };
 
 #endif

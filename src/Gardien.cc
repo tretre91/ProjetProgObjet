@@ -1,4 +1,5 @@
 #include "Gardien.h"
+#include "Audio.h"
 #include "Cell.h"
 #include "Character.h"
 #include "Environnement.h"
@@ -14,6 +15,8 @@ Gardien::Gardien(Labyrinthe* l, const char* modele) : Gardien(100, 100, l, model
 
 Gardien::Gardien(int hp, int max_hp, Labyrinthe* l, const char* modele) : Character(120, 80, hp, max_hp, l, modele) {
 	_angle = _random_angle(_gen);
+	_fire_sound = Audio::get("sons/guard_fire.wav");
+	_hit_sound = Audio::get("sons/oof.wav");
 }
 
 void Gardien::update() {
@@ -62,8 +65,6 @@ void Gardien::update() {
 bool Gardien::move(double dx, double dy) {
 	return try_move(dx, dy);
 }
-
-void Gardien::fire(int angle_vertical) {}
 
 bool Gardien::process_fireball(float dx, float dy) {
 	return false;

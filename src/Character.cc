@@ -1,13 +1,31 @@
 #include "Character.h"
+#include "Audio.h"
 #include "Cell.h"
+#include "Environnement.h"
 #include "Labyrinthe.h"
 #include "Position.h"
 #include <cmath>
+
+Sound* Character::_wall_hit_sound = nullptr;
+double Character::_max_distance;
+
+void Character::init(Labyrinthe* l) {
+	_wall_hit_sound = Audio::get("sons/hit_wall.wav");
+	const double width = l->width() * Environnement::scale;
+	const double height = l->height() * Environnement::scale;
+	_max_distance = width * width + height * height;
+}
 
 double Character::distance(double x1, double y1, double x2, double y2) {
 	const double dx = x2 - x1;
 	const double dy = y2 - y1;
 	return std::sqrt(dx * dx + dy * dy);
+}
+
+float Character::get_volume(double x, double y) {
+	const double dx = _l->_guards[0]->_x - x;
+	const double dy = _l->_guards[0]->_y - y;
+	return 1. - (dx * dx + dy * dy) / _max_distance;
 }
 
 bool Character::move_aux(double dx, double dy) {
@@ -42,6 +60,22 @@ bool Character::move_aux(double dx, double dy) {
 
 bool Character::try_move(double dx, double dy) {
 	return move_aux(dx, dy) || move_aux(dx, 0.0) || move_aux(0.0, dy);
+}
+
+void Character::hit(int dmg, bool play_sound) {
+	_hp -= dmg;
+	if (play_sound) {
+		_hit_sound->play(get_volume(_x, _y));
+	}
+}
+
+void Character::fire(int angle_vertical) {
+	if (_fireball_ready) {
+		_fire_sound->play(get_volume(_x, _y));
+		_fb->init(/* position initiale de la boule */ _x, _y, 10.,
+		  /* angles de visée */ angle_vertical, _angle);
+		_fireball_ready = false;
+	}
 }
 
 /**
