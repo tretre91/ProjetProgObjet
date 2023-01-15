@@ -1,4 +1,5 @@
 #include "Character.h"
+#include "Cell.h"
 #include "Labyrinthe.h"
 #include "Position.h"
 #include <cmath>
@@ -13,9 +14,9 @@ bool Character::move_aux(double dx, double dy) {
 	const Position source = Position::grid_position(_x, _y);
 	const Position target = Position::grid_position(_x + dx, _y + dy);
 
-	char& target_cell = _labyrinth->mut_data(target.x, target.y);
-	if (source == target || EMPTY == target_cell) {
-		char& source_cell = _labyrinth->mut_data(source.x, source.y);
+	Cell& target_cell = _labyrinth->cell(target.x, target.y);
+	if (source == target || target_cell.is_empty()) { // TODO: Urgent, gèrer les marques
+		Cell& source_cell = _labyrinth->cell(source.x, source.y);
 		std::swap(source_cell, target_cell); // TODO
 		_x += dx;
 		_y += dy;
@@ -40,7 +41,7 @@ bool Character::bresenham_collision(int x1, int y1, int x2, int y2) const {
 	int e2;
 
 	while (x1 != x2 || y1 != y2) {
-		if (_labyrinth->data(x1, y1) != EMPTY) {
+		if (!_labyrinth->cell(x1, y1).is_empty()) {
 			return true;
 		}
 
@@ -76,13 +77,13 @@ bool Character::can_see(const Position& target) const {
 
 	// We temporarily empty the target and source cell just in case x1 and x2 (or y1 and y2) get swapped
 	// (as the algorithm would potentially start on an occupied cell and return false immediately)
-	char& source_cell = _labyrinth->mut_data(x1, y1);
-	const char original_source_cell = source_cell;
-	source_cell = EMPTY;
+	Cell& source_cell = _labyrinth->cell(x1, y1);
+	const Cell original_source_cell = source_cell;
+	source_cell._type = CellType::empty;
 
-	char& target_cell = _labyrinth->mut_data(x2, y2);
-	const char original_target_cell = target_cell;
-	target_cell = EMPTY;
+	Cell& target_cell = _labyrinth->cell(x2, y2);
+	const Cell original_target_cell = target_cell;
+	target_cell._type = CellType::empty;
 
 	bool no_obstacles = !bresenham_collision(x1, y1, x2, y2);
 

@@ -1,4 +1,5 @@
 #include "Labyrinthe.h"
+#include "Cell.h"
 #include "Chasseur.h"
 #include "DummyMover.h"
 #include "Gardien.h"
@@ -46,9 +47,9 @@ Labyrinthe::Labyrinthe(const char* filename) {
 
 	// Update the map and correct the object's x positions
 
-	_map = std::vector<std::vector<char>>(_height);
+	_map = std::vector<std::vector<Cell>>(_height);
 	for (size_t i = 0; i < _map.size(); i++) {
-		_map[i].resize(_width, EMPTY);
+		_map[i].resize(_width);
 	}
 
 	for (Wall& wall : m_walls) {
@@ -56,11 +57,11 @@ Labyrinthe::Labyrinthe(const char* filename) {
 		wall._x2 -= min_x;
 		if (wall._x1 == wall._x2) {
 			for (int y = wall._y1; y <= wall._y2; y++) {
-				_map[y][wall._x1] = 1;
+				_map[y][wall._x1]._type = CellType::wall;
 			}
 		} else {
 			for (int x = wall._x1; x <= wall._x2; x++) {
-				_map[wall._y1][x] = 1;
+				_map[wall._y1][x]._type = CellType::wall;
 			}
 		}
 	}
@@ -72,24 +73,26 @@ Labyrinthe::Labyrinthe(const char* filename) {
 
 	for (Box& box : m_boxes) {
 		box._x -= min_x;
-		_map[box._y][box._x] = 1;
+		_map[box._y][box._x]._type = CellType::box;
 	}
 
 	for (Box& mark : m_marks) {
 		mark._x -= min_x;
+		_map[mark._y][mark._x]._type = CellType::mark;
 	}
 
 	_treasor._x -= min_x;
-	_map[_treasor._y][_treasor._x] = 1;
+	_map[_treasor._y][_treasor._x]._type = CellType::treasure;
 
 	m_guards[0]->_x -= min_x * scale;
-	auto [gx, gy] = Position::grid_position(m_guards[0]->_x, m_guards[0]->_y);
-	_map[gy][gx] = 1;
+	const auto [hunter_x, hunter_y] = Position::grid_position(m_guards[0]->_x, m_guards[0]->_y);
+	_map[hunter_y][hunter_x]._type = CellType::hunter;
 
 	for (size_t i = 2; i < m_guards.size(); i++) {
 		m_guards[i]->_x -= min_x * scale;
 		Position p = Position::grid_position(m_guards[i]->_x, m_guards[i]->_y);
-		_map[p.y][p.x] = i;
+		_map[p.y][p.x]._type = CellType::guard;
+		_map[p.y][p.x]._index = i;
 	}
 
 	// Set the Environnement member variables

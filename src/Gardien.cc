@@ -1,4 +1,5 @@
 #include "Gardien.h"
+#include "Cell.h"
 #include "Character.h"
 #include "Environnement.h"
 #include <Labyrinthe.h>
@@ -21,7 +22,7 @@ void Gardien::update() {
 		_state = State::dead;
 		rester_au_sol();
 		auto [x, y] = Position::grid_position(_x, _y);
-		dynamic_cast<Labyrinthe*>(_l)->mut_data(x, y) = EMPTY;
+		dynamic_cast<Labyrinthe*>(_l)->cell(x, y)._type = CellType::empty;
 		_x = -1;
 		_y = -1;
 	}

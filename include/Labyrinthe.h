@@ -1,6 +1,7 @@
 #ifndef LABYRINTHE_H
 #define LABYRINTHE_H
 
+#include "Cell.h"
 #include "Environnement.h"
 #include "Exception.h"
 #include <fstream>
@@ -11,7 +12,7 @@
 class Labyrinthe : public Environnement
 {
 private:
-	std::vector<std::vector<char>> _map;
+	std::vector<std::vector<Cell>> _map;
 	int _width;
 	int _height;
 
@@ -66,14 +67,19 @@ public:
 	int height() { return _height; }
 
 	/**
+	 * @brief Returns 0 if the cell at (x,y) is empty, 1 otherwise
+	 */
+	char data(int x, int y) { return !_map[y][x].is_empty(); }
+
+	/**
 	 * @brief Return the cell at position (x, y).
 	 */
-	char data(int x, int y) { return _map[y][x]; }
+	Cell cell(int x, int y) const { return _map[y][x]; }
 
 	/**
 	 * @brief Return a reference to the cell at position (x, y)
 	 */
-	char& mut_data(int x, int y) { return _map[y][x]; }
+	Cell& cell(int x, int y) { return _map[y][x]; }
 };
 
 #endif

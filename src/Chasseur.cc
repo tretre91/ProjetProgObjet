@@ -1,6 +1,8 @@
 #include "Chasseur.h"
+#include "Cell.h"
 #include "HUD.h"
 #include "Labyrinthe.h"
+#include "Position.h"
 
 using namespace std::chrono_literals;
 
@@ -18,27 +20,25 @@ void Chasseur::update() {
 
 bool Chasseur::process_fireball(float dx, float dy) {
 	// calculer la distance entre le chasseur et le lieu de l'explosion.
-	float x = (_x - _fb->get_x()) / Environnement::scale;
-	float y = (_y - _fb->get_y()) / Environnement::scale;
-	float dist2 = x * x + y * y;
+	const float x = (_x - _fb->get_x()) / Environnement::scale;
+	const float y = (_y - _fb->get_y()) / Environnement::scale;
+	const float dist2 = x * x + y * y;
 	HUD::clear();
 	// on bouge que dans le vide!
-	const int new_x = static_cast<int>((_fb->get_x() + dx) / Environnement::scale);
-	const int new_y = static_cast<int>((_fb->get_y() + dy) / Environnement::scale);
-	const char target = _l->data(new_x, new_y);
-	if (EMPTY == target) {
+	const auto [new_x, new_y] = Position::grid_position(_fb->get_x() + dx, _fb->get_y() + dy);
+	const Cell target = dynamic_cast<Labyrinthe*>(_l)->cell(new_x, new_y);
+	if (target.is_empty()) {
 		HUD::add_message(fmt::format("Woooshh ..... {}", static_cast<int>(dist2)));
 		// il y a la place.
 		return true;
 	}
 
 	// collision...
-	if (target > 1) {
-		// TODO
-		dynamic_cast<Character*>(_l->_guards[static_cast<int>(target)])->hit(20);
+	if (target._type == CellType::guard) {
+		dynamic_cast<Character*>(_l->_guards[target._index])->hit(20);
 	}
 	// calculer la distance maximum en ligne droite.
-	float dmax2 = (_l->width()) * (_l->width()) + (_l->height()) * (_l->height());
+	const float dmax2 = (_l->width()) * (_l->width()) + (_l->height()) * (_l->height());
 	// faire exploser la boule de feu avec un bruit fonction de la distance.
 	_wall_hit->play(1. - dist2 / dmax2);
 	HUD::add_message("Booom...", 2s);
