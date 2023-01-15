@@ -76,9 +76,9 @@ Labyrinthe::Labyrinthe(const char* filename) {
 		_map[box._y][box._x]._type = CellType::box;
 	}
 
-	for (Box& mark : m_marks) {
-		mark._x -= min_x;
-		_map[mark._y][mark._x]._type = CellType::mark;
+	for (size_t i = 0; i < m_marks.size(); i++) {
+		m_marks[i]._x -= min_x;
+		_map[m_marks[i]._y][m_marks[i]._x] = Cell(CellType::mark, i);
 	}
 
 	_treasor._x -= min_x;
