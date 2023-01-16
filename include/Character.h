@@ -4,6 +4,8 @@
 #include "Audio.h"
 #include "Mover.h"
 #include "Position.h"
+#include "Util.h"
+#include <chrono>
 #include <cmath>
 
 /**
@@ -26,36 +28,20 @@ private:
 	bool bresenham_collision(int x1, int y1, int x2, int y2) const;
 
 protected:
+	using duration = Util::duration;
+	using time_point = Util::time_point;
+
 	static Sound* _wall_hit_sound;
 
 	int _max_hp = 100;
 	int _hp = 100;
+	// True if the last fireball has already exploded
 	bool _fireball_ready = true;
+	// Delay between two shots
+	duration _fireball_cooldown = std::chrono::milliseconds{500};
+	time_point _last_fireball_time = time_point::min();
 	Sound* _fire_sound;
 	Sound* _hit_sound;
-
-	// TODO: Move these utility funtions to a dedicated module
-
-	/**
-	 * @brief Converts an angle from degrees to radians.
-	 */
-	static double deg_to_rad(int angle) { return angle * (M_PI / 180.0); }
-
-	/**
-	 * @brief Converts an angle from radians to degrees.
-	 */
-	static int rad_to_deg(double angle) { return std::round(angle * (180.0 / M_PI)); }
-
-	/**
-	 * @brief Normalizes an angle in degrees
-	 * @return The equivalent angle in the range [0, 360)
-	 */
-	static int normalize_angle(int angle) { return (angle % 360 + 360) % 360; }
-
-	/**
-	 * @brief Returns the euclidean distance between two points.
-	 */
-	static double distance(double x1, double y1, double x2, double y2);
 
 	/**
 	 * @brief Attemps to move the character.
@@ -108,12 +94,19 @@ public:
 	 * @brief Constructor, forwards the arguments to the Mover constructor.
 	 * This constructors initializes a character with 100/100 hp
 	 */
-	Character(int x, int y, Labyrinthe* l, const char* modele) : Character(x, y, 100, 100, l, modele) {}
+	Character(int x, int y, Labyrinthe* l, const char* modele) : Character(x, y, duration{500}, 100, 100, l, modele) {}
 
 	/**
 	 * @brief Constructs a Character with a certain number (and a certain limit) of health points.
 	 */
 	Character(int x, int y, int hp, int max_hp, Labyrinthe* l, const char* modele) : Mover(x, y, l, modele), _labyrinth(l), _max_hp(max_hp), _hp(hp) {}
+
+	/**
+	 * @brief Constructs a Character with a certain number (and a certain limit) of health points.
+	 * @param cooldown The character's fire cooldown
+	 */
+	Character(int x, int y, std::chrono::milliseconds cooldown, int hp, int max_hp, Labyrinthe* l, const char* modele) :
+	  Mover(x, y, l, modele), _labyrinth(l), _max_hp(max_hp), _hp(hp), _fireball_cooldown(cooldown) {}
 
 	/**
 	 * @brief Returns this character's current amount of health points.

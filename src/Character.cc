@@ -4,6 +4,7 @@
 #include "Environnement.h"
 #include "Labyrinthe.h"
 #include "Position.h"
+#include "Util.h"
 #include <cmath>
 
 Sound* Character::_wall_hit_sound = nullptr;
@@ -14,12 +15,6 @@ void Character::init(Labyrinthe* l) {
 	const double width = l->width() * Environnement::scale;
 	const double height = l->height() * Environnement::scale;
 	_max_distance = width * width + height * height;
-}
-
-double Character::distance(double x1, double y1, double x2, double y2) {
-	const double dx = x2 - x1;
-	const double dy = y2 - y1;
-	return std::sqrt(dx * dx + dy * dy);
 }
 
 float Character::get_volume(double x, double y) {
@@ -70,11 +65,12 @@ void Character::hit(int dmg, bool play_sound) {
 }
 
 void Character::fire(int angle_vertical) {
-	if (_fireball_ready) {
+	if (_fireball_ready && Util::clock::now() >= _last_fireball_time + _fireball_cooldown) {
 		_fire_sound->play(get_volume(_x, _y));
 		_fb->init(/* position initiale de la boule */ _x, _y, 10.,
 		  /* angles de visée */ angle_vertical, _angle);
 		_fireball_ready = false;
+		_last_fireball_time = Util::clock::now();
 	}
 }
 
@@ -116,7 +112,7 @@ bool Character::bresenham_collision(int x1, int y1, int x2, int y2) const {
 }
 
 bool Character::looks_at(double x, double y, double err) const {
-	return std::abs(get_angle() - normalize_angle(rad_to_deg(std::atan2(y - _y, x - _x)))) < err;
+	return std::abs(get_angle() - Util::normalize_angle(Util::rad_to_deg(std::atan2(y - _y, x - _x)))) < err;
 }
 
 

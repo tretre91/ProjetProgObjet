@@ -6,7 +6,7 @@
 #include "Position.h"
 
 
-Chasseur::Chasseur(Labyrinthe* l) : Character(100, 80, l, nullptr) {
+Chasseur::Chasseur(Labyrinthe* l) : Character(100, 80, Util::duration{250}, 100, 100, l, nullptr) {
 	_fire_sound = Audio::get("sons/hunter_fire.wav");
 	_hit_sound = Audio::get("sons/hunter_hit.wav");
 }
@@ -52,7 +52,7 @@ void Chasseur::right_click(bool shift, bool control) {
 	for (int i = 2; i < _l->_nguards; i++) {
 		x = _l->_guards[i]->_x;
 		y = _l->_guards[i]->_y;
-		dist = distance(_x, _y, x, y);
+		dist = Util::distance(_x, _y, x, y); // TODO: use the squared distance
 		if (dist < min_distance && looks_at(x, y, 10) && can_see(x, y)) {
 			target = _l->_guards[i];
 			min_distance = dist;

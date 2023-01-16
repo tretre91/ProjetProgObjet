@@ -66,13 +66,13 @@ public:
 	 * @brief Get this guard's angle in degrees.
 	 * @return The guards angle in my coordinate system (0° on the x+ axis, counter-clockwise rotation)
 	 */
-	int get_angle() const override { return normalize_angle(_angle + 90); }
+	int get_angle() const override { return Util::normalize_angle(_angle + 90); }
 
 	/**
 	 * @brief Set this guard's angle.
 	 * @param angle An angle in degrees in my coordinate system (0° on the x+ axis, counter-clockwise rotation)
 	 */
-	void set_angle(int angle) override { _angle = normalize_angle(angle - 90); }
+	void set_angle(int angle) override { _angle = Util::normalize_angle(angle - 90); }
 };
 
 #endif

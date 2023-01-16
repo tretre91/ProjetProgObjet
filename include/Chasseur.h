@@ -2,6 +2,7 @@
 #define CHASSEUR_H
 
 #include "Character.h"
+#include "Util.h"
 
 class Labyrinthe;
 
@@ -36,7 +37,7 @@ public:
 	 * @brief Get the hunter's angle.
 	 * @return The hunter's angle in degrees
 	 */
-	int get_angle() const override { return normalize_angle(-(_angle - 90)); }
+	int get_angle() const override { return Util::normalize_angle(-(_angle - 90)); }
 
 	/**
 	 * @brief Function called when the user right-clicks
