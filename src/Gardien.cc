@@ -7,15 +7,13 @@
 #include <Labyrinthe.h>
 #include <cmath>
 
-std::random_device Gardien::_rd;
-std::mt19937 Gardien::_gen(_rd());
 // random_angle(gen) returns a random integer between 0 and 359
 std::uniform_int_distribution<> Gardien::_random_angle(0, 359);
 
 Gardien::Gardien(Labyrinthe* l, const char* modele) : Gardien(100, 100, l, modele) {}
 
 Gardien::Gardien(int hp, int max_hp, Labyrinthe* l, const char* modele) : Character(120, 80, Util::duration{1000}, hp, max_hp, l, modele) {
-	_angle = _random_angle(_gen);
+	_angle = _random_angle(Util::random_engine);
 	_fire_sound = Audio::get("sons/guard_fire.wav");
 	_hit_sound = Audio::get("sons/oof.wav");
 }
@@ -47,7 +45,7 @@ void Gardien::update() {
 	switch (_state) {
 	case State::patrol:
 		while (!move_aux(_speed * std::cos(angle), _speed * std::sin(angle))) {
-			_angle = _random_angle(_gen);
+			_angle = _random_angle(Util::random_engine);
 			angle = Util::deg_to_rad(get_angle());
 		}
 		break;

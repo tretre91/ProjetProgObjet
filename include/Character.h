@@ -7,6 +7,7 @@
 #include "Util.h"
 #include <chrono>
 #include <cmath>
+#include <random>
 
 /**
  * @brief Class implementing a character
@@ -40,6 +41,9 @@ protected:
 	// Delay between two shots
 	duration _fireball_cooldown = std::chrono::milliseconds{500};
 	time_point _last_fireball_time = time_point::min();
+	std::uniform_int_distribution<> _fire_angle_error{0, 0};
+	int _fire_error_step = 1;
+	
 	Sound* _fire_sound;
 	Sound* _hit_sound;
 

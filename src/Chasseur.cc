@@ -1,18 +1,23 @@
 #include "Chasseur.h"
 #include "Audio.h"
 #include "Cell.h"
+#include "Environnement.h"
 #include "HUD.h"
 #include "Labyrinthe.h"
 #include "Position.h"
 
 
 Chasseur::Chasseur(Labyrinthe* l) : Character(100, 80, Util::duration{250}, 100, 100, l, nullptr) {
+	_fire_error_step = 2; // TODO: 2 c'est un petit peu violent quand même hein
 	_fire_sound = Audio::get("sons/hunter_fire.wav");
 	_hit_sound = Audio::get("sons/hunter_hit.wav");
 }
 
 
 void Chasseur::update() {
+	if (_hp <= 0) {
+		partie_terminee(false);
+	}
 	HUD::update();
 }
 

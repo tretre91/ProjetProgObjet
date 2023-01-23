@@ -6,6 +6,7 @@
 #include "Position.h"
 #include "Util.h"
 #include <cmath>
+#include <random>
 
 Sound* Character::_wall_hit_sound = nullptr;
 double Character::_max_distance;
@@ -59,6 +60,9 @@ bool Character::try_move(double dx, double dy) {
 
 void Character::hit(int dmg, bool play_sound) {
 	_hp -= dmg;
+	auto a = _fire_angle_error.a() - _fire_error_step;
+	auto b = _fire_angle_error.b() + _fire_error_step;
+	_fire_angle_error = std::uniform_int_distribution<>{a, b};
 	if (play_sound) {
 		_hit_sound->play(get_volume(_x, _y));
 	}
@@ -66,9 +70,10 @@ void Character::hit(int dmg, bool play_sound) {
 
 void Character::fire(int angle_vertical) {
 	if (_fireball_ready && Util::clock::now() >= _last_fireball_time + _fireball_cooldown) {
+		const int vertical_error = _fire_angle_error(Util::random_engine) / 2;
+		const int horizontal_error = _fire_angle_error(Util::random_engine);
 		_fire_sound->play(get_volume(_x, _y));
-		_fb->init(/* position initiale de la boule */ _x, _y, 10.,
-		  /* angles de visée */ angle_vertical, _angle);
+		_fb->init(_x, _y, 10., angle_vertical + vertical_error, _angle + horizontal_error);
 		_fireball_ready = false;
 		_last_fireball_time = Util::clock::now();
 	}

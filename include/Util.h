@@ -3,7 +3,11 @@
 
 #include <chrono>
 #include <cmath>
+#include <random>
 
+/**
+* @brief Namespace containing typedefs, objects and functions used in multiple files.
+*/
 namespace Util
 {
 	// Time related definitions
@@ -11,6 +15,10 @@ namespace Util
 	using duration = std::chrono::milliseconds;
 	using clock = std::chrono::high_resolution_clock;
 	using time_point = clock::time_point;
+
+	// Variables used for random numbers
+	inline std::random_device random_device;
+	inline std::mt19937 random_engine{random_device()};
 
 	// Utilitary functions
 	/**

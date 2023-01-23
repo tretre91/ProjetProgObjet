@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.14)
 
 project(labh LANGUAGES CXX C)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
 add_library(deps INTERFACE)
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")

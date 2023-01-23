@@ -9,9 +9,7 @@ class Labyrinthe;
 class Gardien : public Character
 {
 private:
-	// variables used to generate random angles
-	static std::random_device _rd;
-	static std::mt19937 _gen;
+	// used to generate random angles
 	static std::uniform_int_distribution<> _random_angle;
 
 	/**
