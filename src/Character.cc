@@ -30,14 +30,13 @@ bool Character::move_aux(double dx, double dy) {
 
 	Cell& target_cell = _labyrinth->cell(target.x, target.y);
 
-	if (source != target && !target_cell.is_empty()) {
-		return false;
-	}
-
-	_x += dx;
-	_y += dy;
-
 	if (source != target) {
+		on_cell_change(target_cell);
+
+		if (!target_cell.is_empty()) {
+			return false;
+		}
+
 		Cell& source_cell = _labyrinth->cell(source.x, source.y);
 
 		target_cell._type = source_cell._type;
@@ -51,6 +50,9 @@ bool Character::move_aux(double dx, double dy) {
 		}
 	}
 
+	_x += dx;
+	_y += dy;
+
 	return true;
 }
 
@@ -60,11 +62,19 @@ bool Character::try_move(double dx, double dy) {
 
 void Character::hit(int dmg, bool play_sound) {
 	_hp -= dmg;
-	auto a = _fire_angle_error.a() - _fire_error_step;
-	auto b = _fire_angle_error.b() + _fire_error_step;
-	_fire_angle_error = std::uniform_int_distribution<>{a, b};
+	if (_hp > _max_hp) {
+		_hp = _max_hp;
+	}
+
+	int err = static_cast<int>((static_cast<double>(_max_hp - _hp) / _max_hp) * 5.);
+	_fire_angle_error = std::uniform_int_distribution<>{-err, err};
+
 	if (play_sound) {
-		_hit_sound->play(get_volume(_x, _y));
+		if (dmg > 0) {
+			_hit_sound->play(get_volume(_x, _y));
+		} else if (dmg < 0) {
+			_heal_sound->play(get_volume(_x, _y));
+		}
 	}
 }
 

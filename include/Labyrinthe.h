@@ -4,6 +4,7 @@
 #include "Cell.h"
 #include "Environnement.h"
 #include "Exception.h"
+#include "Mark.h"
 #include <fstream>
 #include <string>
 #include <unordered_map>
@@ -15,12 +16,6 @@ private:
 	std::vector<std::vector<Cell>> _map;
 	int _width;
 	int _height;
-
-	std::vector<Wall> m_walls; // TODO: rename with smtg else
-	std::vector<Wall> m_posters;
-	std::vector<Box> m_boxes;
-	std::vector<Box> m_marks;
-	std::vector<Mover*> m_guards;
 
 	/**
 	 * @brief Returns the texture id associated to a file.
@@ -50,8 +45,13 @@ private:
 	 */
 	int parse(std::ifstream& file);
 
-
 public:
+	std::vector<Wall> _walls;
+	std::vector<Wall> _posters;
+	std::vector<Mark*> _marks;
+	std::vector<Box> _boxes;
+	std::vector<Mover*> _guards;
+
 	Labyrinthe(const char* filename);
 
 	~Labyrinthe();
@@ -80,6 +80,12 @@ public:
 	 * @brief Return a reference to the cell at position (x, y)
 	 */
 	Cell& cell(int x, int y) { return _map[y][x]; }
+
+	/**
+	 * @brief Update a mark and reconfigure the labyrinth.
+	 * @param i The mark's index
+	 */
+	void update_mark(int i);
 };
 
 #endif

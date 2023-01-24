@@ -4,6 +4,7 @@
 #include "Environnement.h"
 #include "HUD.h"
 #include "Labyrinthe.h"
+#include "Mark.h"
 #include "Position.h"
 
 
@@ -11,6 +12,7 @@ Chasseur::Chasseur(Labyrinthe* l) : Character(100, 80, Util::duration{250}, 100,
 	_fire_error_step = 2; // TODO: 2 c'est un petit peu violent quand même hein
 	_fire_sound = Audio::get("sons/hunter_fire.wav");
 	_hit_sound = Audio::get("sons/hunter_hit.wav");
+	_heal_sound = Audio::get("sons/heal.wav");
 }
 
 
@@ -19,6 +21,41 @@ void Chasseur::update() {
 		partie_terminee(false);
 	}
 	HUD::update();
+}
+
+void Chasseur::on_cell_change(Cell& cell) {
+	if (cell._type == CellType::treasure) {
+		partie_terminee(true);
+		return;
+	}
+
+	if (cell._mark_index != -1) {
+		auto lab = dynamic_cast<Labyrinthe*>(_l); // TODO
+		Mark* mark = lab->_marks[cell._mark_index];
+		switch (mark->type()) {
+		case MarkType::heal:
+			if (_hp < _max_hp) {
+				HealingMark* heal = dynamic_cast<HealingMark*>(mark);
+				hit(-(heal->_heal_amount), true);
+				Mark* new_mark = new Mark{mark->_x, mark->_y};
+				delete heal;
+				lab->_marks[cell._mark_index] = new_mark;
+				lab->update_mark(cell._mark_index);
+			}
+			break;
+		case MarkType::teleporter:
+			{
+				TeleporterMark* dest = dynamic_cast<TeleporterMark*>(mark)->_target;
+				if (dest != nullptr) {
+					_x = (dest->_x + 0.5) * Environnement::scale;
+					_y = (dest->_y + 0.5) * Environnement::scale;
+				}
+			}
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 bool Chasseur::process_fireball(float dx, float dy) {
@@ -57,7 +94,7 @@ void Chasseur::right_click(bool shift, bool control) {
 	for (int i = 2; i < _l->_nguards; i++) {
 		x = _l->_guards[i]->_x;
 		y = _l->_guards[i]->_y;
-		dist = Util::distance(_x, _y, x, y); // TODO: use the squared distance
+		dist = Util::squared_distance(_x, _y, x, y);
 		if (dist < min_distance && looks_at(x, y, 10) && can_see(x, y)) {
 			target = _l->_guards[i];
 			min_distance = dist;

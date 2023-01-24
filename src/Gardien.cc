@@ -16,6 +16,7 @@ Gardien::Gardien(int hp, int max_hp, Labyrinthe* l, const char* modele) : Charac
 	_angle = _random_angle(Util::random_engine);
 	_fire_sound = Audio::get("sons/guard_fire.wav");
 	_hit_sound = Audio::get("sons/oof.wav");
+	_heal_sound = Audio::get("sons/heal.wav");
 }
 
 void Gardien::update() {

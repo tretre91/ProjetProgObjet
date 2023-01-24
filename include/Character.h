@@ -2,6 +2,7 @@
 #define LAB_CHARACTER_H
 
 #include "Audio.h"
+#include "Cell.h"
 #include "Mover.h"
 #include "Position.h"
 #include "Util.h"
@@ -42,10 +43,11 @@ protected:
 	duration _fireball_cooldown = std::chrono::milliseconds{500};
 	time_point _last_fireball_time = time_point::min();
 	std::uniform_int_distribution<> _fire_angle_error{0, 0};
-	int _fire_error_step = 1;
-	
+	int _fire_error_step = 1; // TODO: use this parameter
+
 	Sound* _fire_sound;
 	Sound* _hit_sound;
+	Sound* _heal_sound;
 
 	/**
 	 * @brief Attemps to move the character.
@@ -58,6 +60,12 @@ protected:
 	 * @return true if the character moved, false otherwise
 	 */
 	bool try_move(double dx, double dy);
+
+	/**
+	 * @brief Function called when the characters changes cell
+	 * @param cell The cell on wich the character is moving
+	 */
+	virtual void on_cell_change(Cell& cell) {}
 
 	/**
 	 * @brief Tells wheter this character is looking in the direction of the position x, y

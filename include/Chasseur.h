@@ -22,6 +22,12 @@ public:
 	bool move(double dx, double dy) override { return try_move(dx, dy); }
 
 	/**
+	 * @brief Function called when the Hunter steps on a new cell
+	 * @param cell The target cell
+	 */
+	void on_cell_change(Cell& cell) override;
+
+	/**
 	 * @brief Function called at each update
 	 * Updates the HUD
 	 */

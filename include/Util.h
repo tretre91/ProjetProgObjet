@@ -6,8 +6,8 @@
 #include <random>
 
 /**
-* @brief Namespace containing typedefs, objects and functions used in multiple files.
-*/
+ * @brief Namespace containing typedefs, objects and functions used in multiple files.
+ */
 namespace Util
 {
 	// Time related definitions
@@ -36,7 +36,7 @@ namespace Util
 	}
 
 	/**
-	 * @brief Normalizes an angle in degrees
+	 * @brief Normalizes an angle in degrees.
 	 * @return The equivalent angle in the range [0, 360)
 	 */
 	inline int normalize_angle(int angle) {
@@ -44,12 +44,17 @@ namespace Util
 	}
 
 	/**
+	 * @brief Returns the squared euclidean distance between two points.
+	 */
+	inline double squared_distance(double x1, double y1, double x2, double y2) {
+		return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+	}
+
+	/**
 	 * @brief Returns the euclidean distance between two points.
 	 */
 	inline double distance(double x1, double y1, double x2, double y2) {
-		const double dx = x2 - x1;
-		const double dy = y2 - y1;
-		return std::sqrt(dx * dx + dy * dy);
+		return std::sqrt(squared_distance(x1, y1, x2, y2));
 	}
 } // namespace Util
 
