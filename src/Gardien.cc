@@ -3,8 +3,9 @@
 #include "Cell.h"
 #include "Character.h"
 #include "Environnement.h"
+#include "Labyrinthe.h"
+#include "Mark.h"
 #include "Util.h"
-#include <Labyrinthe.h>
 #include <cmath>
 
 // random_angle(gen) returns a random integer between 0 and 359
@@ -12,11 +13,11 @@ std::uniform_int_distribution<> Gardien::_random_angle(0, 359);
 
 Gardien::Gardien(Labyrinthe* l, const char* modele) : Gardien(100, 100, l, modele) {}
 
-Gardien::Gardien(int hp, int max_hp, Labyrinthe* l, const char* modele) : Character(120, 80, Util::duration{1000}, hp, max_hp, l, modele) {
+Gardien::Gardien(int hp, int max_hp, Labyrinthe* l, const char* modele) : Character(120, 80, Util::milliseconds{1000}, hp, max_hp, l, modele) {
 	_angle = _random_angle(Util::random_engine);
-	_fire_sound = Audio::get("sons/guard_fire.wav");
-	_hit_sound = Audio::get("sons/oof.wav");
-	_heal_sound = Audio::get("sons/heal.wav");
+	_fire_sound = Audio::get("sounds/guard_fire.wav");
+	_hit_sound = Audio::get("sounds/oof.wav");
+	_heal_sound = Audio::get("sounds/heal.wav");
 }
 
 void Gardien::update() {
@@ -25,7 +26,7 @@ void Gardien::update() {
 		_state = State::dead;
 		rester_au_sol();
 		const auto [x, y] = Position::grid_position(_x, _y);
-		dynamic_cast<Labyrinthe*>(_l)->cell(x, y)._type = CellType::empty;
+		_l->cell(x, y)._type = CellType::empty;
 		_x = -2;
 		_y = -2;
 	}
@@ -70,9 +71,14 @@ bool Gardien::move(double dx, double dy) {
 	return try_move(dx, dy);
 }
 
+bool Gardien::on_cell_change(Cell& cell) {
+	// if the cell is a teleporter, we cancel the move
+	return cell._type != CellType::mark || _l->_marks[cell._mark_index]->type() != MarkType::teleporter;
+}
+
 bool Gardien::process_fireball(float dx, float dy) {
 	const auto [new_x, new_y] = Position::grid_position(_fb->get_x() + dx, _fb->get_y() + dy);
-	const Cell target = dynamic_cast<Labyrinthe*>(_l)->cell(new_x, new_y);
+	const Cell target = _l->cell(new_x, new_y);
 	if (target.is_empty() || (target._type == CellType::guard && _l->_guards[target._index] == this)) {
 		return true;
 	}

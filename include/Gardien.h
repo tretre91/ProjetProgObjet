@@ -55,6 +55,13 @@ public:
 	bool move(double dx, double dy) override;
 
 	/**
+	 * @brief Fucntion called when the guard moves to a different cell.
+	 * @param cell The target cell
+	 * @return false if the cell is a teleporter
+	 */
+	bool on_cell_change(Cell& cell) override;
+
+	/**
 	 * @brief Moves the fireball along the x and y axis
 	 * @return false if the fireball collided with something
 	 */

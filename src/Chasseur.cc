@@ -8,11 +8,11 @@
 #include "Position.h"
 
 
-Chasseur::Chasseur(Labyrinthe* l) : Character(100, 80, Util::duration{250}, 100, 100, l, nullptr) {
+Chasseur::Chasseur(Labyrinthe* l) : Character(100, 80, Util::milliseconds{250}, 100, 100, l, nullptr) {
 	_fire_error_step = 2; // TODO: 2 c'est un petit peu violent quand même hein
-	_fire_sound = Audio::get("sons/hunter_fire.wav");
-	_hit_sound = Audio::get("sons/hunter_hit.wav");
-	_heal_sound = Audio::get("sons/heal.wav");
+	_fire_sound = Audio::get("sounds/hunter_fire.wav");
+	_hit_sound = Audio::get("sounds/hunter_hit.wav");
+	_heal_sound = Audio::get("sounds/heal.wav");
 }
 
 
@@ -23,15 +23,11 @@ void Chasseur::update() {
 	HUD::update();
 }
 
-void Chasseur::on_cell_change(Cell& cell) {
+bool Chasseur::on_cell_change(Cell& cell) {
 	if (cell._type == CellType::treasure) {
 		partie_terminee(true);
-		return;
-	}
-
-	if (cell._mark_index != -1) {
-		auto lab = dynamic_cast<Labyrinthe*>(_l); // TODO
-		Mark* mark = lab->_marks[cell._mark_index];
+	} else if (cell._mark_index != -1) {
+		Mark* mark = _l->_marks[cell._mark_index];
 		switch (mark->type()) {
 		case MarkType::heal:
 			if (_hp < _max_hp) {
@@ -39,8 +35,8 @@ void Chasseur::on_cell_change(Cell& cell) {
 				hit(-(heal->_heal_amount), true);
 				Mark* new_mark = new Mark{mark->_x, mark->_y};
 				delete heal;
-				lab->_marks[cell._mark_index] = new_mark;
-				lab->update_mark(cell._mark_index);
+				_l->_marks[cell._mark_index] = new_mark;
+				_l->update_mark(cell._mark_index);
 			}
 			break;
 		case MarkType::teleporter:
@@ -56,12 +52,13 @@ void Chasseur::on_cell_change(Cell& cell) {
 			break;
 		}
 	}
+	return true;
 }
 
 bool Chasseur::process_fireball(float dx, float dy) {
 	// on bouge que dans le vide!
 	const auto [new_x, new_y] = Position::grid_position(_fb->get_x() + dx, _fb->get_y() + dy);
-	const Cell target = dynamic_cast<Labyrinthe*>(_l)->cell(new_x, new_y);
+	const Cell target = _l->cell(new_x, new_y);
 	if (target.is_empty()) {
 		// il y a la place.
 		return true;

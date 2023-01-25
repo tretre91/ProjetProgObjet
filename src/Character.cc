@@ -12,7 +12,7 @@ Sound* Character::_wall_hit_sound = nullptr;
 double Character::_max_distance;
 
 void Character::init(Labyrinthe* l) {
-	_wall_hit_sound = Audio::get("sons/hit_wall.wav");
+	_wall_hit_sound = Audio::get("sounds/hit_wall.wav");
 	const double width = l->width() * Environnement::scale;
 	const double height = l->height() * Environnement::scale;
 	_max_distance = width * width + height * height;
@@ -28,16 +28,14 @@ bool Character::move_aux(double dx, double dy) {
 	const Position source = Position::grid_position(_x, _y);
 	const Position target = Position::grid_position(_x + dx, _y + dy);
 
-	Cell& target_cell = _labyrinth->cell(target.x, target.y);
+	Cell& target_cell = _l->cell(target.x, target.y);
 
 	if (source != target) {
-		on_cell_change(target_cell);
-
-		if (!target_cell.is_empty()) {
+		if (!(on_cell_change(target_cell) && target_cell.is_empty())) {
 			return false;
 		}
 
-		Cell& source_cell = _labyrinth->cell(source.x, source.y);
+		Cell& source_cell = _l->cell(source.x, source.y);
 
 		target_cell._type = source_cell._type;
 		target_cell._index = source_cell._index;
@@ -101,7 +99,7 @@ bool Character::bresenham_collision(int x1, int y1, int x2, int y2) const {
 	int e2;
 
 	while (x1 != x2 || y1 != y2) {
-		if (!_labyrinth->cell(x1, y1).is_empty()) {
+		if (!_l->cell(x1, y1).is_empty()) {
 			return true;
 		}
 
@@ -137,11 +135,11 @@ bool Character::can_see(const Position& target) const {
 
 	// We temporarily empty the target and source cell just in case x1 and x2 (or y1 and y2) get swapped
 	// (as the algorithm would potentially start on an occupied cell and return false immediately)
-	Cell& source_cell = _labyrinth->cell(x1, y1);
+	Cell& source_cell = _l->cell(x1, y1);
 	const Cell original_source_cell = source_cell;
 	source_cell._type = CellType::empty;
 
-	Cell& target_cell = _labyrinth->cell(x2, y2);
+	Cell& target_cell = _l->cell(x2, y2);
 	const Cell original_target_cell = target_cell;
 	target_cell._type = CellType::empty;
 

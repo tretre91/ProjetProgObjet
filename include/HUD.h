@@ -48,7 +48,7 @@ private:
 	static void refresh_cache();
 
 public:
-	using duration = Util::duration;
+	using milliseconds = Util::milliseconds;
 
 	/**
 	 * @brief Initializes the hud.
@@ -69,7 +69,7 @@ public:
 	 * @param timeout The delay until the message is removed from the hud, pass 0 (time::zero())
 	 *                for the message to stay indefinitely. Defaults to zero.
 	 */
-	static void add_message(const std::string& msg, duration timeout = duration::zero());
+	static void add_message(const std::string& msg, milliseconds timeout = milliseconds::zero());
 
 	/**
 	 * @brief Adds a status message about a guard.

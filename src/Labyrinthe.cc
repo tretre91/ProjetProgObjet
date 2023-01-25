@@ -98,9 +98,9 @@ Labyrinthe::Labyrinthe(const char* filename) {
 
 	for (size_t i = 2; i < _guards.size(); i++) {
 		_guards[i]->_x -= min_x * scale;
-		Position p = Position::grid_position(_guards[i]->_x, _guards[i]->_y);
-		_map[p.y][p.x]._type = CellType::guard;
-		_map[p.y][p.x]._index = i;
+		const auto [x, y] = Position::grid_position(_guards[i]->_x, _guards[i]->_y);
+		_map[y][x]._type = CellType::guard;
+		_map[y][x]._index = i;
 	}
 
 	// Set the Environnement member variables
@@ -246,7 +246,7 @@ int Labyrinthe::parse(std::ifstream& file) {
 	std::string line;
 
 	while (std::getline(file, line)) {
-		for (int x = 0; x < line.size(); x++) {
+		for (int x = 0; x < static_cast<int>(line.size()); x++) {
 			switch (line[x]) {
 			case ' ': // emptyy space
 				last_horizontal_wall = -1;

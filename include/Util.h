@@ -12,7 +12,7 @@ namespace Util
 {
 	// Time related definitions
 	// Every duration used in the project is expressed in milliseconds.
-	using duration = std::chrono::milliseconds;
+	using milliseconds = std::chrono::milliseconds;
 	using clock = std::chrono::high_resolution_clock;
 	using time_point = clock::time_point;
 
