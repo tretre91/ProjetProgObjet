@@ -9,9 +9,7 @@ class Labyrinthe;
 class Gardien : public Character
 {
 private:
-	// variables used to generate random angles
-	static std::random_device _rd;
-	static std::mt19937 _gen;
+	// used to generate random angles
 	static std::uniform_int_distribution<> _random_angle;
 
 	/**
@@ -57,11 +55,11 @@ public:
 	bool move(double dx, double dy) override;
 
 	/**
-	 * @brief Method used to make a guard shoot
-	 * @note does nothing for the moment
-	 * @param vertical_angle The vertical angle at which the fireball will be shot
+	 * @brief Fucntion called when the guard moves to a different cell.
+	 * @param cell The target cell
+	 * @return false if the cell is a teleporter
 	 */
-	void fire(int angle_vertical) override;
+	bool on_cell_change(Cell& cell) override;
 
 	/**
 	 * @brief Moves the fireball along the x and y axis
@@ -73,13 +71,13 @@ public:
 	 * @brief Get this guard's angle in degrees.
 	 * @return The guards angle in my coordinate system (0° on the x+ axis, counter-clockwise rotation)
 	 */
-	int get_angle() const override { return normalize_angle(_angle + 90); }
+	int get_angle() const override { return Util::normalize_angle(_angle + 90); }
 
 	/**
 	 * @brief Set this guard's angle.
 	 * @param angle An angle in degrees in my coordinate system (0° on the x+ axis, counter-clockwise rotation)
 	 */
-	void set_angle(int angle) override { _angle = normalize_angle(angle - 90); }
+	void set_angle(int angle) override { _angle = Util::normalize_angle(angle - 90); }
 };
 
 #endif

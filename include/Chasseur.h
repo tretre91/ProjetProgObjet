@@ -2,18 +2,13 @@
 #define CHASSEUR_H
 
 #include "Character.h"
-#include "Sound.h"
+#include "Util.h"
 
 class Labyrinthe;
 
 class Chasseur : public Character
 {
 public:
-	// The sounds of the hunter
-	static Sound* _hunter_fire; // bruit de l'arme du chasseur.
-	static Sound* _hunter_hit;  // cri du chasseur touché.
-	static Sound* _wall_hit;    // on a tapé un mur.
-
 	/**
 	 * @brief Construct a new Chasseur object
 	 */
@@ -25,6 +20,13 @@ public:
 	 * @return true if the hunter was moved, false otherwise
 	 */
 	bool move(double dx, double dy) override { return try_move(dx, dy); }
+
+	/**
+	 * @brief Function called when the Hunter steps on a new cell
+	 * @param cell The target cell
+	 * @return true
+	 */
+	bool on_cell_change(Cell& cell) override;
 
 	/**
 	 * @brief Function called at each update
@@ -39,16 +41,10 @@ public:
 	bool process_fireball(float dx, float dy) override;
 
 	/**
-	 * @brief Shoots a fireball
-	 * @param angle_vertical The vertical angle at which the fireball will be shot
-	 */
-	void fire(int angle_vertical) override;
-
-	/**
 	 * @brief Get the hunter's angle.
 	 * @return The hunter's angle in degrees
 	 */
-	int get_angle() const override { return normalize_angle(-(_angle - 90)); }
+	int get_angle() const override { return Util::normalize_angle(-(_angle - 90)); }
 
 	/**
 	 * @brief Function called when the user right-clicks

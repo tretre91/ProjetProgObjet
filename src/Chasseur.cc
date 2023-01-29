@@ -1,58 +1,80 @@
 #include "Chasseur.h"
+#include "Audio.h"
+#include "Cell.h"
+#include "Environnement.h"
 #include "HUD.h"
 #include "Labyrinthe.h"
-
-using namespace std::chrono_literals;
-
-Sound* Chasseur::_hunter_fire; // bruit de l'arme du chasseur.
-Sound* Chasseur::_hunter_hit;  // cri du chasseur touché.
-Sound* Chasseur::_wall_hit;    // on a tapé un mur.
+#include "Mark.h"
+#include "Position.h"
 
 
-Chasseur::Chasseur(Labyrinthe* l) : Character(100, 80, l, nullptr) {}
+Chasseur::Chasseur(Labyrinthe* l) : Character(100, 80, Util::milliseconds{250}, 100, 100, l, nullptr) {
+	_fire_error_step = 1.;
+	_fire_sound = Audio::get("sounds/hunter_fire.wav");
+	_hit_sound = Audio::get("sounds/hunter_hit.wav");
+	_heal_sound = Audio::get("sounds/heal.wav");
+}
 
 
 void Chasseur::update() {
+	if (_hp <= 0) {
+		partie_terminee(false);
+	}
 	HUD::update();
 }
 
+bool Chasseur::on_cell_change(Cell& cell) {
+	if (cell._type == CellType::treasure) {
+		partie_terminee(true);
+	} else if (cell._mark_index != -1) {
+		Mark* mark = _l->_marks[cell._mark_index];
+		switch (mark->type()) {
+		case MarkType::heal:
+			if (_hp < _max_hp) {
+				HealingMark* heal = dynamic_cast<HealingMark*>(mark);
+				hit(-(heal->_heal_amount), true);
+				Mark* new_mark = new Mark{mark->_x, mark->_y};
+				delete heal;
+				_l->_marks[cell._mark_index] = new_mark;
+				_l->update_mark(cell._mark_index);
+			}
+			break;
+		case MarkType::teleporter:
+			{
+				TeleporterMark* dest = dynamic_cast<TeleporterMark*>(mark)->_target;
+				if (dest != nullptr) {
+					_x = (dest->_x + 0.5) * Environnement::scale;
+					_y = (dest->_y + 0.5) * Environnement::scale;
+				}
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	return true;
+}
+
 bool Chasseur::process_fireball(float dx, float dy) {
-	// calculer la distance entre le chasseur et le lieu de l'explosion.
-	float x = (_x - _fb->get_x()) / Environnement::scale;
-	float y = (_y - _fb->get_y()) / Environnement::scale;
-	float dist2 = x * x + y * y;
-	HUD::clear();
 	// on bouge que dans le vide!
-	const int new_x = static_cast<int>((_fb->get_x() + dx) / Environnement::scale);
-	const int new_y = static_cast<int>((_fb->get_y() + dy) / Environnement::scale);
-	const char target = _l->data(new_x, new_y);
-	if (EMPTY == target) {
-		HUD::add_message(fmt::format("Woooshh ..... {}", static_cast<int>(dist2)));
+	const auto [new_x, new_y] = Position::grid_position(_fb->get_x() + dx, _fb->get_y() + dy);
+	const Cell target = _l->cell(new_x, new_y);
+	if (target.is_empty()) {
 		// il y a la place.
 		return true;
 	}
 
 	// collision...
-	if (target > 1) {
-		// TODO
-		dynamic_cast<Character*>(_l->_guards[static_cast<int>(target)])->hit(20);
+	if (target._type == CellType::guard) {
+		dynamic_cast<Character*>(_l->_guards[target._index])->hit(20);
 	}
-	// calculer la distance maximum en ligne droite.
-	float dmax2 = (_l->width()) * (_l->width()) + (_l->height()) * (_l->height());
+
 	// faire exploser la boule de feu avec un bruit fonction de la distance.
-	_wall_hit->play(1. - dist2 / dmax2);
-	HUD::add_message("Booom...", 2s);
+	_wall_hit_sound->play(get_volume(_fb->get_x(), _fb->get_y()));
+
+	_fireball_ready = true;
 	return false;
 }
-
-
-void Chasseur::fire(int angle_vertical) {
-	HUD::add_message("Woooshh...");
-	_hunter_fire->play();
-	_fb->init(/* position initiale de la boule */ _x, _y, 10.,
-	  /* angles de vis�e */ angle_vertical, _angle);
-}
-
 
 void Chasseur::right_click(bool shift, bool control) {
 	if (control) {
@@ -69,7 +91,7 @@ void Chasseur::right_click(bool shift, bool control) {
 	for (int i = 2; i < _l->_nguards; i++) {
 		x = _l->_guards[i]->_x;
 		y = _l->_guards[i]->_y;
-		dist = distance(_x, _y, x, y);
+		dist = Util::squared_distance(_x, _y, x, y);
 		if (dist < min_distance && looks_at(x, y, 10) && can_see(x, y)) {
 			target = _l->_guards[i];
 			min_distance = dist;

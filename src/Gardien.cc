@@ -1,18 +1,24 @@
 #include "Gardien.h"
+#include "Audio.h"
+#include "Cell.h"
 #include "Character.h"
 #include "Environnement.h"
-#include <Labyrinthe.h>
+#include "Labyrinthe.h"
+#include "Mark.h"
+#include "Util.h"
 #include <cmath>
 
-std::random_device Gardien::_rd;
-std::mt19937 Gardien::_gen(_rd());
 // random_angle(gen) returns a random integer between 0 and 359
 std::uniform_int_distribution<> Gardien::_random_angle(0, 359);
 
 Gardien::Gardien(Labyrinthe* l, const char* modele) : Gardien(100, 100, l, modele) {}
 
-Gardien::Gardien(int hp, int max_hp, Labyrinthe* l, const char* modele) : Character(120, 80, hp, max_hp, l, modele) {
-	_angle = _random_angle(_gen);
+Gardien::Gardien(int hp, int max_hp, Labyrinthe* l, const char* modele) : Character(120, 80, Util::milliseconds{1000}, hp, max_hp, l, modele) {
+	_angle = _random_angle(Util::random_engine);
+	_fire_error_step = 1.5;
+	_fire_sound = Audio::get("sounds/guard_fire.wav");
+	_hit_sound = Audio::get("sounds/oof.wav");
+	_heal_sound = Audio::get("sounds/heal.wav");
 }
 
 void Gardien::update() {
@@ -20,10 +26,10 @@ void Gardien::update() {
 	if (_state != State::dead && _hp <= 0) {
 		_state = State::dead;
 		rester_au_sol();
-		auto [x, y] = Position::grid_position(_x, _y);
-		dynamic_cast<Labyrinthe*>(_l)->mut_data(x, y) = EMPTY;
-		_x = -1;
-		_y = -1;
+		const auto [x, y] = Position::grid_position(_x, _y);
+		_l->cell(x, y)._type = CellType::empty;
+		_x = -2;
+		_y = -2;
 	}
 
 	if (_state == State::dead) {
@@ -37,20 +43,25 @@ void Gardien::update() {
 		_state = State::patrol;
 	}
 
-	double angle = deg_to_rad(get_angle());
+	double angle;
 
 	switch (_state) {
 	case State::patrol:
+		angle = Util::deg_to_rad(get_angle());
 		while (!move_aux(_speed * std::cos(angle), _speed * std::sin(angle))) {
-			_angle = _random_angle(_gen);
-			angle = deg_to_rad(get_angle());
+			_angle = _random_angle(Util::random_engine);
+			angle = Util::deg_to_rad(get_angle());
 		}
 		break;
 	case State::attack:
 		angle = std::atan2(hunter->_y - _y, hunter->_x - _x);
-		set_angle(rad_to_deg(angle));
-		if (distance(_x, _y, hunter->_x, hunter->_y) > _range) {
+		set_angle(Util::rad_to_deg(angle));
+		if (Util::distance(_x, _y, hunter->_x, hunter->_y) > _range) {
 			move(_speed * std::cos(angle), _speed * std::sin(angle));
+		} else {
+			_angle *= -1;
+			fire(0);
+			_angle *= -1;
 		}
 		break;
 	default:
@@ -62,8 +73,25 @@ bool Gardien::move(double dx, double dy) {
 	return try_move(dx, dy);
 }
 
-void Gardien::fire(int angle_vertical) {}
+bool Gardien::on_cell_change(Cell& cell) {
+	// if the cell is a teleporter, we cancel the move
+	return cell._type != CellType::mark || _l->_marks[cell._mark_index]->type() != MarkType::teleporter;
+}
 
 bool Gardien::process_fireball(float dx, float dy) {
+	const auto [new_x, new_y] = Position::grid_position(_fb->get_x() + dx, _fb->get_y() + dy);
+	const Cell target = _l->cell(new_x, new_y);
+	if (target.is_empty() || (target._type == CellType::guard && _l->_guards[target._index] == this)) {
+		return true;
+	}
+
+	// collision
+	if (target._type == CellType::hunter) {
+		dynamic_cast<Character*>(_l->_guards[0])->hit(10);
+	}
+
+	_wall_hit_sound->play(get_volume(_fb->get_x(), _fb->get_y()));
+
+	_fireball_ready = true;
 	return false;
 }

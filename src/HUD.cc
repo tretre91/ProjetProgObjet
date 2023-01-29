@@ -84,9 +84,9 @@ void HUD::update() {
 	}
 }
 
-void HUD::add_message(const std::string& msg, duration timeout) {
+void HUD::add_message(const std::string& msg, milliseconds timeout) {
 	auto it = _messages.insert(_messages.end(), msg);
-	if (timeout != duration::zero()) {
+	if (timeout != milliseconds::zero()) {
 		time_point delete_time_point = time_point::clock::now() + timeout;
 		_temporary_messages.insert(std::make_pair(delete_time_point, it));
 	}

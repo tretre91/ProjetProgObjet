@@ -1,27 +1,32 @@
 #include "Labyrinthe.h"
+#include "Cell.h"
+#include "Character.h"
 #include "Chasseur.h"
 #include "DummyMover.h"
+#include "Environnement.h"
 #include "Gardien.h"
 #include "HUD.h"
+#include "Mark.h"
 #include "Position.h"
+#include "Util.h"
 
+#include <algorithm>
 #include <cctype>
 #include <fmt/core.h>
 #include <limits>
 
 Environnement* Environnement::init(char* filename) {
-	// initialization of the sound objects
-	Chasseur::_hunter_fire = new Sound("sons/hunter_fire.wav"); // bruit de l'arme du chasseur.
-	Chasseur::_hunter_hit = new Sound("sons/hunter_hit.wav");   // cri du chasseur touché.
-	Chasseur::_wall_hit = new Sound("sons/hit_wall.wav");       // on a tapé un mur.
-
 	// creation of the labyrinth
 	texture_dir = "textures/backrooms";
 	modele_dir = "modeles";
 	Labyrinthe* lab = new Labyrinthe(filename);
 
+	// initialization of the character class' static attributes
+	Character::init(lab);
+
 	// initialization of the hud
 	HUD::init(lab);
+	HUD::add_message("Welcome to the backrooms :)", Util::milliseconds{3000});
 
 	return lab;
 }
@@ -33,8 +38,14 @@ Labyrinthe::Labyrinthe(const char* filename) {
 		throw std::invalid_argument(fmt::format("No file named {}", filename));
 	}
 
-	m_guards.push_back(new Chasseur(this));
-	m_guards.push_back(new DummyMover(this));
+	// initialization of the Mark default textures
+	Mark::_empty_texture = texture_id("empty.gif");
+	Mark::_healing_texture = texture_id("heal.gif");
+	Mark::_mark_texture = texture_id("p1.gif");
+
+	// parsing of the labyrinth file
+	_guards.push_back(new Chasseur(this));
+	_guards.push_back(new DummyMover(this));
 
 	fmt::print(stderr, "Parsing {} ...\n", filename);
 	int min_x = parse(file);
@@ -46,73 +57,78 @@ Labyrinthe::Labyrinthe(const char* filename) {
 
 	// Update the map and correct the object's x positions
 
-	_map = std::vector<std::vector<char>>(_height);
+	_map = std::vector<std::vector<Cell>>(_height);
 	for (size_t i = 0; i < _map.size(); i++) {
-		_map[i].resize(_width, EMPTY);
+		_map[i].resize(_width);
 	}
 
-	for (Wall& wall : m_walls) {
+	for (Wall& wall : _walls) {
 		wall._x1 -= min_x;
 		wall._x2 -= min_x;
 		if (wall._x1 == wall._x2) {
 			for (int y = wall._y1; y <= wall._y2; y++) {
-				_map[y][wall._x1] = 1;
+				_map[y][wall._x1]._type = CellType::wall;
 			}
 		} else {
 			for (int x = wall._x1; x <= wall._x2; x++) {
-				_map[wall._y1][x] = 1;
+				_map[wall._y1][x]._type = CellType::wall;
 			}
 		}
 	}
 
-	for (Wall& poster : m_posters) {
+	for (Wall& poster : _posters) {
 		poster._x1 -= min_x;
 		poster._x2 -= min_x;
 	}
 
-	for (Box& box : m_boxes) {
+	for (Box& box : _boxes) {
 		box._x -= min_x;
-		_map[box._y][box._x] = 1;
+		_map[box._y][box._x]._type = CellType::box;
 	}
 
-	for (Box& mark : m_marks) {
-		mark._x -= min_x;
+	for (size_t i = 0; i < _marks.size(); i++) {
+		_marks[i]->_x -= min_x;
+		_map[_marks[i]->_y][_marks[i]->_x] = Cell(CellType::mark, i);
 	}
 
 	_treasor._x -= min_x;
-	_map[_treasor._y][_treasor._x] = 1;
+	_map[_treasor._y][_treasor._x]._type = CellType::treasure;
 
-	m_guards[0]->_x -= min_x * scale;
-	auto [gx, gy] = Position::grid_position(m_guards[0]->_x, m_guards[0]->_y);
-	_map[gy][gx] = 1;
+	_guards[0]->_x -= min_x * scale;
+	const auto [hunter_x, hunter_y] = Position::grid_position(_guards[0]->_x, _guards[0]->_y);
+	_map[hunter_y][hunter_x]._type = CellType::hunter;
 
-	for (size_t i = 2; i < m_guards.size(); i++) {
-		m_guards[i]->_x -= min_x * scale;
-		Position p = Position::grid_position(m_guards[i]->_x, m_guards[i]->_y);
-		_map[p.y][p.x] = i;
+	for (size_t i = 2; i < _guards.size(); i++) {
+		_guards[i]->_x -= min_x * scale;
+		const auto [x, y] = Position::grid_position(_guards[i]->_x, _guards[i]->_y);
+		_map[y][x]._type = CellType::guard;
+		_map[y][x]._index = i;
 	}
 
 	// Set the Environnement member variables
-	_walls = m_walls.data();
-	_nwall = m_walls.size();
-	_picts = m_posters.data();
-	_npicts = m_posters.size();
-	_boxes = m_boxes.data();
-	_nboxes = m_boxes.size();
-	_marks = m_marks.data();
-	_nmarks = m_marks.size();
-	_guards = m_guards.data();
-	_nguards = m_guards.size();
+	Environnement::_walls = _walls.data();
+	_nwall = _walls.size();
+	Environnement::_picts = _posters.data();
+	_npicts = _posters.size();
+	Environnement::_boxes = _boxes.data();
+	_nboxes = _boxes.size();
+	Environnement::_marks = new Box[_marks.size()];
+	std::transform(_marks.begin(), _marks.end(), Environnement::_marks, [](const Mark* mark) { return *static_cast<const Box*>(mark); });
+	Environnement::_nmarks = _marks.size();
+	Environnement::_guards = _guards.data();
+	_nguards = _guards.size();
 }
 
 Labyrinthe::~Labyrinthe() {
-	for (Mover* m : m_guards) {
+	for (Mover* m : _guards) {
 		delete m;
 	}
 
-	delete Chasseur::_hunter_fire;
-	delete Chasseur::_hunter_hit;
-	delete Chasseur::_wall_hit;
+	for (Mark* mark : _marks) {
+		delete mark;
+	}
+
+	delete[] Environnement::_marks;
 }
 
 int Labyrinthe::texture_id(const std::string& filename) {
@@ -129,6 +145,11 @@ int Labyrinthe::texture_id(const std::string& filename) {
 		texture_cache[filename] = id;
 		return id;
 	}
+}
+
+void Labyrinthe::update_mark(int i) {
+	Environnement::_marks[i] = *static_cast<Box*>(_marks[i]);
+	reconfigure();
 }
 
 std::unordered_map<char, std::string> Labyrinthe::parse_header(std::ifstream& file) {
@@ -168,23 +189,68 @@ std::unordered_map<char, std::string> Labyrinthe::parse_header(std::ifstream& fi
 
 int Labyrinthe::parse(std::ifstream& file) {
 	std::unordered_map<char, std::string> textures = parse_header(file);
-
-	const int box_texture = texture_id("caisse.jpg");
-	const int mark_texture = texture_id("p1.gif");
-
-	std::string line;
+	std::unordered_map<char, TeleporterMark*> teleporters;
 	std::unordered_map<int, int> partial_walls;
+
 	int last_horizontal_wall = -1;
+
+	// helper functions
+	// Function used to add a teleporter mark
+	auto add_teleporter = [&, this](int x, int y, char id) {
+		const auto it = textures.find(id);
+		int tex_id = it != textures.end() ? texture_id(it->second) : Mark::_mark_texture;
+		if (auto it = teleporters.find(id); it != teleporters.end()) {
+			TeleporterMark* mark = new TeleporterMark{x, y, tex_id, nullptr};
+			if (it->second->_target == nullptr) {
+				it->second->_target = mark;
+				mark->_target = it->second;
+				_marks.push_back(mark);
+			} else {
+				throw ParseError(fmt::format("{}:{}, There are already 2 teleporters of type {}\n", x, y, id));
+			}
+		} else {
+			TeleporterMark* mark = new TeleporterMark{x, y, tex_id, nullptr};
+			_marks.push_back(mark);
+			teleporters[id] = mark;
+		}
+	};
+
+	// Function used to add a textured wall
+	auto add_texture = [&, this](int x, int y, char id) {
+		const auto it = textures.find(id);
+		if (it == textures.end()) {
+			throw ParseError(fmt::format("{}:{}, No texture associated with '{}'", y, x, id));
+		}
+
+		const bool on_horizontal_wall = last_horizontal_wall != -1;
+		const bool on_vertical_wall = partial_walls.find(x) != partial_walls.end();
+		if (on_horizontal_wall && on_vertical_wall) {
+			throw ParseError(fmt::format("{}:{}, A texture cannot be at a wall intersection", y, x));
+		}
+
+		if (!on_horizontal_wall && !on_vertical_wall) {
+			throw ParseError(fmt::format("{}:{}, A texture must be on a wall", y, x));
+		}
+
+		if (on_horizontal_wall) {
+			_posters.push_back({x, y, x + 2, y, texture_id(it->second)});
+		} else {
+			_posters.push_back({x, y, x, y + 2, texture_id(it->second)});
+		}
+	};
+
+	// Parsing loop
+	bool hunter_found = false;
+	bool treasure_found = false;
 	int y = 0;
 	int min_x = std::numeric_limits<int>::max();
 	int max_x = std::numeric_limits<int>::min();
-	bool hunter_found = false;
-	bool treasure_found = false;
+	std::string line;
 
 	while (std::getline(file, line)) {
-		for (int x = 0; x < line.size(); x++) {
+		for (int x = 0; x < static_cast<int>(line.size()); x++) {
 			switch (line[x]) {
-			case ' ':
+			case ' ': // emptyy space
 				last_horizontal_wall = -1;
 				if (partial_walls.find(x) != partial_walls.end()) {
 					partial_walls.erase(x);
@@ -193,13 +259,16 @@ int Labyrinthe::parse(std::ifstream& file) {
 			case '-': // TODO: indicate if a maze is ill-formed
 			case '|':
 				break;
-			case 'X':
-				m_boxes.push_back({x, y, box_texture});
+			case 'X': // box
+				_boxes.push_back({x, y, texture_id("caisse.jpg")});
 				break;
-			case 'M':
-				m_marks.push_back({x, y, mark_texture});
+			case 'M': // normal mark
+				_marks.push_back(new Mark{x, y, texture_id("p1.gif")});
 				break;
-			case 'T':
+			case 'H': // heal mark
+				_marks.push_back(new HealingMark{x, y, 20});
+				break;
+			case 'T': // treasure
 				if (treasure_found) {
 					throw ParseError(fmt::format("{}:{}, There can only be 1 treasure", y, x));
 				}
@@ -207,23 +276,20 @@ int Labyrinthe::parse(std::ifstream& file) {
 				_treasor._x = x;
 				_treasor._y = y;
 				break;
-			case 'C':
+			case 'C': // hunter
 				if (hunter_found) {
 					throw ParseError(fmt::format("{}:{}, There can only be 1 hunter", y, x));
 				}
 				hunter_found = true;
-				m_guards[0]->_x = x * scale;
-				m_guards[0]->_y = y * scale;
+				_guards[0]->_x = x * scale;
+				_guards[0]->_y = y * scale;
 				break;
-			case 'G':
-				{
-					Mover* guardian = new Gardien(this, "Carrot"); // TODO "Lezard","Blade","Serpent","Samourai"
-					m_guards.push_back(guardian);
-					guardian->_x = x * scale;
-					guardian->_y = y * scale;
-				}
+			case 'G': // guard
+				_guards.push_back(new Gardien(this, "Samourai")); // TODO: use multiple models
+				_guards.back()->_x = x * scale;
+				_guards.back()->_y = y * scale;
 				break;
-			case '+':
+			case '+': // wall edge
 				if (x < min_x) {
 					min_x = x;
 				} else if (x > max_x) {
@@ -232,42 +298,23 @@ int Labyrinthe::parse(std::ifstream& file) {
 
 				// check if this corresponds to a vertical wall
 				if (auto it = partial_walls.find(x); it != partial_walls.end()) {
-					m_walls.push_back({x, it->second, x, y, 0});
+					_walls.push_back({x, it->second, x, y, 0});
 				}
 				partial_walls[x] = y;
 
 				// same for the horizontal wall
 				if (last_horizontal_wall != -1) {
-					m_walls.push_back({last_horizontal_wall, y, x, y, 0});
+					_walls.push_back({last_horizontal_wall, y, x, y, 0});
 				}
 				last_horizontal_wall = x;
 				break;
-			default: // textures and invalid characters
-				{
-					if (!std::islower(line[x])) {
-						throw ParseError(fmt::format("{}:{}, Unknown character '{}'", y, x, line[x]));
-					}
-
-					const auto it = textures.find(line[x]);
-					if (it == textures.end()) {
-						throw ParseError(fmt::format("{}:{}, No texture associated with '{}'", y, x, line[x]));
-					}
-
-					const bool on_horizontal_wall = last_horizontal_wall != -1;
-					const bool on_vertical_wall = partial_walls.find(x) != partial_walls.end();
-					if (on_horizontal_wall && on_vertical_wall) {
-						throw ParseError(fmt::format("{}:{}, A texture cannot be at a wall intersection", y, x));
-					}
-
-					if (!on_horizontal_wall && !on_vertical_wall) {
-						throw ParseError(fmt::format("{}:{}, A texture must be on a wall", y, x));
-					}
-
-					if (on_horizontal_wall) {
-						m_posters.push_back({x, y, x + 2, y, texture_id(it->second)});
-					} else {
-						m_posters.push_back({x, y, x, y + 2, texture_id(it->second)});
-					}
+			default:                         // textures, teleporters and invalid characters
+				if (std::isdigit(line[x])) { // teleporter
+					add_teleporter(x, y, line[x]);
+				} else if (std::islower(line[x])) { // texture
+					add_texture(x, y, line[x]);
+				} else {
+					throw ParseError(fmt::format("{}:{}, Unknown character '{}'", y, x, line[x]));
 				}
 				break;
 			}
