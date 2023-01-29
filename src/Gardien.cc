@@ -15,6 +15,7 @@ Gardien::Gardien(Labyrinthe* l, const char* modele) : Gardien(100, 100, l, model
 
 Gardien::Gardien(int hp, int max_hp, Labyrinthe* l, const char* modele) : Character(120, 80, Util::milliseconds{1000}, hp, max_hp, l, modele) {
 	_angle = _random_angle(Util::random_engine);
+	_fire_error_step = 1.5;
 	_fire_sound = Audio::get("sounds/guard_fire.wav");
 	_hit_sound = Audio::get("sounds/oof.wav");
 	_heal_sound = Audio::get("sounds/heal.wav");
@@ -42,10 +43,11 @@ void Gardien::update() {
 		_state = State::patrol;
 	}
 
-	double angle = Util::deg_to_rad(get_angle());
+	double angle;
 
 	switch (_state) {
 	case State::patrol:
+		angle = Util::deg_to_rad(get_angle());
 		while (!move_aux(_speed * std::cos(angle), _speed * std::sin(angle))) {
 			_angle = _random_angle(Util::random_engine);
 			angle = Util::deg_to_rad(get_angle());
@@ -85,7 +87,7 @@ bool Gardien::process_fireball(float dx, float dy) {
 
 	// collision
 	if (target._type == CellType::hunter) {
-		dynamic_cast<Character*>(_l->_guards[0])->hit(20);
+		dynamic_cast<Character*>(_l->_guards[0])->hit(10);
 	}
 
 	_wall_hit_sound->play(get_volume(_fb->get_x(), _fb->get_y()));

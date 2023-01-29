@@ -5,6 +5,7 @@
 #include "Labyrinthe.h"
 #include "Position.h"
 #include "Util.h"
+#include "fmt/core.h"
 #include <cmath>
 #include <random>
 
@@ -64,7 +65,7 @@ void Character::hit(int dmg, bool play_sound) {
 		_hp = _max_hp;
 	}
 
-	int err = static_cast<int>((static_cast<double>(_max_hp - _hp) / _max_hp) * 5.);
+	int err = static_cast<int>((static_cast<double>(_max_hp - _hp) / _max_hp) * _fire_error_step * 5.);
 	_fire_angle_error = std::uniform_int_distribution<>{-err, err};
 
 	if (play_sound) {
@@ -125,7 +126,10 @@ bool Character::bresenham_collision(int x1, int y1, int x2, int y2) const {
 }
 
 bool Character::looks_at(double x, double y, double err) const {
-	return std::abs(get_angle() - Util::normalize_angle(Util::rad_to_deg(std::atan2(y - _y, x - _x)))) < err;
+	const int current_angle = get_angle();
+	const int computed_angle = Util::normalize_angle(Util::rad_to_deg(std::atan2(y - _y, x - _x)));
+	const int difference = Util::normalize_angle((current_angle - computed_angle) + 180) - 180;
+	return std::abs(difference) < err;
 }
 
 

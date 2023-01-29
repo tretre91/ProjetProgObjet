@@ -9,7 +9,7 @@
 
 
 Chasseur::Chasseur(Labyrinthe* l) : Character(100, 80, Util::milliseconds{250}, 100, 100, l, nullptr) {
-	_fire_error_step = 2; // TODO: 2 c'est un petit peu violent quand même hein
+	_fire_error_step = 1.;
 	_fire_sound = Audio::get("sounds/hunter_fire.wav");
 	_hit_sound = Audio::get("sounds/hunter_hit.wav");
 	_heal_sound = Audio::get("sounds/heal.wav");

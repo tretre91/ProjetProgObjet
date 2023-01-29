@@ -8,6 +8,7 @@
 #include "HUD.h"
 #include "Mark.h"
 #include "Position.h"
+#include "Util.h"
 
 #include <algorithm>
 #include <cctype>
@@ -25,6 +26,7 @@ Environnement* Environnement::init(char* filename) {
 
 	// initialization of the hud
 	HUD::init(lab);
+	HUD::add_message("Welcome to the backrooms :)", Util::milliseconds{3000});
 
 	return lab;
 }
@@ -283,7 +285,7 @@ int Labyrinthe::parse(std::ifstream& file) {
 				_guards[0]->_y = y * scale;
 				break;
 			case 'G': // guard
-				_guards.push_back(new Gardien(this, "Carrot"));
+				_guards.push_back(new Gardien(this, "Samourai")); // TODO: use multiple models
 				_guards.back()->_x = x * scale;
 				_guards.back()->_y = y * scale;
 				break;
