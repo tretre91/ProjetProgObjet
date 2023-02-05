@@ -1,3 +1,9 @@
+/**
+ * @file Util.h
+ * File containing utilitary functions, variables and definitions used at various
+ * places in the project.
+ */
+
 #ifndef LAB_UTIL_H
 #define LAB_UTIL_H
 
@@ -20,19 +26,21 @@ namespace Util
 	inline std::random_device random_device;
 	inline std::mt19937 random_engine{random_device()};
 
+	inline constexpr double pi = 3.14159265358979323846;
+
 	// Utilitary functions
 	/**
 	 * @brief Converts an angle from degrees to radians.
 	 */
 	inline double deg_to_rad(int angle) {
-		return angle * (M_PI / 180.0);
+		return angle * (pi / 180.0);
 	}
 
 	/**
 	 * @brief Converts an angle from radians to degrees.
 	 */
 	inline int rad_to_deg(double angle) {
-		return std::round(angle * (180.0 / M_PI));
+		return std::round(angle * (180.0 / pi));
 	}
 
 	/**

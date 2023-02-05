@@ -1,0 +1,232 @@
+@startuml
+class "Sound" as C_0001507033279064648436
+class C_0001507033279064648436 {
+-init() : void
++Sound(const char * ) : void
++~Sound() : void
++play(float volume = 1., float pan = 0.) : void
+-_sound : FMOD::Sound *
+{static} -_system : FMOD::System *
+{static} -_channel : FMOD::Channel *
+{static} -_nsounds : int
+}
+class "Audio" as C_0001116069619315135930
+class C_0001116069619315135930 {
+{static} +get(const std::string & filename) : Sound *
+{static} -_sounds : std::unordered_map<std::string,std::unique_ptr<Sound>>
+}
+enum "CellType" as C_0001365247480956715224
+enum C_0001365247480956715224 {
+empty
+wall
+treasure
+box
+mark
+hunter
+guard
+}
+class "Cell" as C_0002079627403415545256
+class C_0002079627403415545256 {
++Cell() = default : void
++Cell(CellType type) : void
++Cell(CellType type, int index) : void
++is_empty() const : bool
++_type : CellType
++_index : int
++_mark_index : int
+}
+abstract "Environnement" as C_0002069755371297581881
+abstract C_0002069755371297581881 {
+{static} +init(char * filename) : Environnement *
+{abstract} +width() = 0 : int
+{abstract} +height() = 0 : int
+{abstract} +data(int i, int j) = 0 : char
++~Environnement() : void
++reconfigure() : void
++wall_texture(char * ) : int
++make_fireballs() : void
++_walls : Wall *
++_nwall : int
++_picts : Wall *
++_npicts : int
++_boxes : Box *
++_nboxes : int
++_marks : Box *
++_nmarks : int
++_treasor : Box
++_guards : Mover **
++_nguards : int
+{static} +scale : const int
+{static} +texture_dir : const char *
+{static} +modele_dir : const char *
+}
+abstract "Mover" as C_0000271278170332191289
+abstract C_0000271278170332191289 {
+{static} -init(const char * ) : void *
++Mover(int x, int y, Labyrinthe * l, const char * modele) : void
++~Mover() : void
++tomber() : void
++rester_au_sol() : void
+{abstract} +update() = 0 : void
+{abstract} +process_fireball(float dx, float dy) = 0 : bool
+{abstract} +move(double dx, double dy) = 0 : bool
+{abstract} +fire(int angle_vertical) = 0 : void
++right_click(bool shift, bool control) : void
++_l : Environnement *
++_fb : FireBall *
++_x : float
++_y : float
++_angle : int
++_model : void *
+}
+class "Position" as C_0000462039902954950099
+class C_0000462039902954950099 {
+{static} +grid_position(double x, double y) : Position
++Position() = default : void
++Position(int x, int y) : void
++x : int
++y : int
+{static} -_max_x : int
+{static} -_max_y : int
+}
+class "Character" as C_0001651132542626895657
+class C_0001651132542626895657 {
+-bresenham_collision(int x1, int y1, int x2, int y2) const : bool
+#move_aux(double dx, double dy) : bool
+#try_move(double dx, double dy) : bool
+#on_cell_change(Cell & cell) : bool
+#looks_at(double x, double y, double err = Environnement::scale) const : bool
+#can_see(double x, double y) const : bool
+#can_see(const Position & target) const : bool
+{static} +init(Labyrinthe * l) : void
++Character(int x, int y, Labyrinthe * l, const char * modele) : void
++Character(int x, int y, int hp, int max_hp, Labyrinthe * l, const char * modele) : void
++Character(int x, int y, Character::milliseconds cooldown, int hp, int max_hp, Labyrinthe * l, const char * modele) : void
++hp() const : int
++hit(int dmg, bool play_sound = true) : void
++max_hp() const : int
++get_angle() const : int
++set_angle(int angle) : void
++fire(int vertical_angle) : void
++get_volume(double x, double y) : float
+#_l : Labyrinthe *
+#_max_hp : int
+#_hp : int
+#_fireball_ready : bool
+#_fireball_cooldown : Character::milliseconds
+#_last_fireball_time : Character::time_point
+#_fire_angle_error : std::uniform_int_distribution<>
+#_fire_error_step : double
+#_fire_sound : Sound *
+#_hit_sound : Sound *
+#_heal_sound : Sound *
+{static} -_max_distance : double
+{static} #_wall_hit_sound : Sound *
+}
+class "Gardien" as C_0001224198675948223321
+class C_0001224198675948223321 {
++Gardien(Labyrinthe * l, const char * modele) : void
++Gardien(int hp, int max_hp, Labyrinthe * l, const char * modele) : void
++update() : void
++move(double dx, double dy) : bool
++on_cell_change(Cell & cell) : bool
++process_fireball(float dx, float dy) : bool
++get_angle() const : int
++set_angle(int angle) : void
+-_state : Gardien::State
+-_speed : double
+-_range : double
+{static} -_random_angle : std::uniform_int_distribution<>
+}
+class "Labyrinthe" as C_0001321287422961384243
+class C_0001321287422961384243 {
+-texture_id(const std::string & filename) : int
+-parse_header(std::ifstream & file) : std::unordered_map<char,std::string>
+-parse(std::ifstream & file) : int
++Labyrinthe(const char * filename) : void
++~Labyrinthe() : void
++width() : int
++height() : int
++data(int x, int y) : char
++cell(int x, int y) const : Cell
++cell(int x, int y) : Cell &
++update_mark(int index) : void
+-_map : std::vector<std::vector<Cell>>
+-_width : int
+-_height : int
++_walls : std::vector<Wall>
++_posters : std::vector<Wall>
++_marks : std::vector<Mark *>
++_boxes : std::vector<Box>
++_guards : std::vector<Mover *>
+}
+class "Chasseur" as C_0001814787268382861053
+class C_0001814787268382861053 {
++Chasseur(Labyrinthe * l) : void
++move(double dx, double dy) : bool
++on_cell_change(Cell & cell) : bool
++update() : void
++process_fireball(float dx, float dy) : bool
++get_angle() const : int
++right_click(bool shift, bool control) : void
+}
+class "HUD" as C_0000423028007947759020
+class C_0000423028007947759020 {
+{static} -refresh_cache() : void
+{static} +init(Labyrinthe * l) : void
+{static} +update() : void
+{static} +add_message(const std::string & msg, HUD::milliseconds timeout = milliseconds::zero()) : void
+{static} +focus_guard(Character * guard) : void
+{static} +clear() : void
+{static} +refresh() : void
+{static} -_labyrinth : Labyrinthe *
+{static} -_data : std::string
+{static} -_messages : std::list<std::string>
+{static} -_messages_deadlines : std::multimap<time_point,std::list<std::string>::iterator>
+{static} -_focused_guard : Character *
+{static} -_focused_guard_timeout : HUD::time_point
+{static} -_cache : HUD::Cache
+{static} -_redraw : bool
+}
+class "DummyMover" as C_0001372549048354737909
+class C_0001372549048354737909 {
++DummyMover(Labyrinthe * l) : void
++~DummyMover() : void
++update() : void
++process_fireball(float , float ) : bool
++move(double dx, double dy) : bool
++fire(int angle_vertical) : void
+{static} -_is_instanciated : bool
+}
+C_0001116069619315135930 --> C_0001507033279064648436 : -_sounds
+C_0002079627403415545256 ..> C_0001365247480956715224
+C_0002079627403415545256 o-- C_0001365247480956715224 : +_type
+C_0002069755371297581881 --> C_0000271278170332191289 : +_guards
+C_0000271278170332191289 ..> C_0001321287422961384243
+C_0000271278170332191289 --> C_0002069755371297581881 : +_l
+C_0000462039902954950099 <.. C_0001321287422961384243 : +<<friend>>
+C_0001651132542626895657 ..> C_0002079627403415545256
+C_0001651132542626895657 ..> C_0000462039902954950099
+C_0001651132542626895657 ..> C_0001321287422961384243
+C_0001651132542626895657 --> C_0001321287422961384243 : #_l
+C_0001651132542626895657 --> C_0001507033279064648436 : #_fire_sound
+C_0001651132542626895657 --> C_0001507033279064648436 : #_hit_sound
+C_0001651132542626895657 --> C_0001507033279064648436 : #_heal_sound
+C_0001651132542626895657 --> C_0001507033279064648436 : #_wall_hit_sound
+C_0000271278170332191289 <|-- C_0001651132542626895657
+C_0001224198675948223321 ..> C_0001321287422961384243
+C_0001224198675948223321 ..> C_0002079627403415545256
+C_0001651132542626895657 <|-- C_0001224198675948223321
+C_0001321287422961384243 o-- C_0002079627403415545256 : -_map
+C_0001321287422961384243 --> C_0000271278170332191289 : +_guards
+C_0002069755371297581881 <|-- C_0001321287422961384243
+C_0001814787268382861053 ..> C_0001321287422961384243
+C_0001814787268382861053 ..> C_0002079627403415545256
+C_0001651132542626895657 <|-- C_0001814787268382861053
+C_0000423028007947759020 ..> C_0001321287422961384243
+C_0000423028007947759020 ..> C_0001651132542626895657
+C_0000423028007947759020 --> C_0001321287422961384243 : -_labyrinth
+C_0000423028007947759020 --> C_0001651132542626895657 : -_focused_guard
+C_0001372549048354737909 ..> C_0001321287422961384243
+C_0000271278170332191289 <|-- C_0001372549048354737909
+@enduml

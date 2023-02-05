@@ -1,3 +1,8 @@
+/**
+ * @file DummyMover.h
+ * Defines the `DummyMover` class.
+ */
+
 #ifndef LAB_DUMMYMOVER_H
 #define LAB_DUMMYMOVER_H
 

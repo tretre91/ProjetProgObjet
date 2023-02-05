@@ -1,3 +1,8 @@
+/**
+ * @file Chasseur.h
+ * Defines the Chasseur class.
+ */
+
 #ifndef CHASSEUR_H
 #define CHASSEUR_H
 
@@ -6,36 +11,39 @@
 
 class Labyrinthe;
 
+/**
+ * @brief Class representing the Hunter.
+ */
 class Chasseur : public Character
 {
 public:
 	/**
-	 * @brief Construct a new Chasseur object
+	 * @brief Construct a new Chasseur object.
 	 */
 	Chasseur(Labyrinthe* l);
 
 	/**
-	 * @brief Attemps to move the character along the x and y axis
+	 * @brief Attemps to move the character along the x and y axis.
 	 * See Character::try_move
-	 * @return true if the hunter was moved, false otherwise
+	 * @return true if the hunter moved, false otherwise
 	 */
 	bool move(double dx, double dy) override { return try_move(dx, dy); }
 
 	/**
-	 * @brief Function called when the Hunter steps on a new cell
+	 * @brief Function called when the Hunter steps on a new cell.
 	 * @param cell The target cell
 	 * @return true
 	 */
 	bool on_cell_change(Cell& cell) override;
 
 	/**
-	 * @brief Function called at each update
+	 * @brief Function called at each update.
 	 * Updates the HUD
 	 */
 	void update() override;
 
 	/**
-	 * @brief Moves the fireball along the x and y axis
+	 * @brief Moves the fireball along the x and y axis.
 	 * @return false if the fireball collided with something
 	 */
 	bool process_fireball(float dx, float dy) override;
@@ -47,9 +55,9 @@ public:
 	int get_angle() const override { return Util::normalize_angle(-(_angle - 90)); }
 
 	/**
-	 * @brief Function called when the user right-clicks
-	 * @param shift Flag indicating if shift was held when clicking
-	 * @param control Flag indicating if ctrl was held when clicking
+	 * @brief Function called when the user right-clicks.
+	 * @param shift Boolean indicating if shift was held when clicking
+	 * @param control Boolean indicating if ctrl was held when clicking
 	 */
 	void right_click(bool shift, bool control) override;
 };

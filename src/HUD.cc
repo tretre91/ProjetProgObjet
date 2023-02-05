@@ -7,7 +7,7 @@ Labyrinthe* HUD::_labyrinth = nullptr;
 std::string HUD::_data;
 
 std::list<std::string> HUD::_messages;
-std::multimap<HUD::time_point, std::list<std::string>::iterator> HUD::_temporary_messages;
+std::multimap<HUD::time_point, std::list<std::string>::iterator> HUD::_messages_deadlines;
 
 Character* HUD::_focused_guard = nullptr;
 HUD::time_point HUD::_focused_guard_timeout = time_point::max();
@@ -57,11 +57,11 @@ void HUD::refresh_cache() {
 void HUD::update() {
 	// we erase the messages planned for deletion
 	const auto now = time_point::clock::now();
-	auto it = _temporary_messages.begin();
-	while (it != _temporary_messages.end() && it->first < now) {
+	auto it = _messages_deadlines.begin();
+	while (it != _messages_deadlines.end() && it->first < now) {
 		_redraw = true;
 		_messages.erase(it->second);
-		it = _temporary_messages.erase(it);
+		it = _messages_deadlines.erase(it);
 	}
 
 	// we erase the guard's hp
@@ -88,7 +88,7 @@ void HUD::add_message(const std::string& msg, milliseconds timeout) {
 	auto it = _messages.insert(_messages.end(), msg);
 	if (timeout != milliseconds::zero()) {
 		time_point delete_time_point = time_point::clock::now() + timeout;
-		_temporary_messages.insert(std::make_pair(delete_time_point, it));
+		_messages_deadlines.insert(std::make_pair(delete_time_point, it));
 	}
 
 	_redraw = true;
@@ -102,7 +102,7 @@ void HUD::focus_guard(Character* guard) {
 }
 
 void HUD::clear() {
-	_temporary_messages.clear();
+	_messages_deadlines.clear();
 	_messages.clear();
 	_redraw = true;
 }

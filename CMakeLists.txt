@@ -46,5 +46,4 @@ set(SOURCES
 add_executable(labh ${SOURCES})
 target_include_directories(labh PRIVATE include include/immutable)
 target_link_libraries(labh PRIVATE deps fmt::fmt fltk_jpeg fltk_png fltk_z fltk_gl fltk)
-target_compile_features(labh PRIVATE cxx_std_17)
 target_compile_options(labh PRIVATE "-Wall")

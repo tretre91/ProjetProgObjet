@@ -1,3 +1,8 @@
+/**
+ * @file Character.h
+ * Defines the Character class
+ */
+
 #ifndef LAB_CHARACTER_H
 #define LAB_CHARACTER_H
 
@@ -17,7 +22,7 @@
 class Character : public Mover
 {
 private:
-	static double _max_distance;
+	static double _max_distance; // max distance a fireball can travel
 
 	/**
 	 * @brief Tells wheter there is an object (cell != EMPTY) between two positions.

@@ -1,3 +1,8 @@
+/**
+ * @file Labyrinthe.h
+ * This file defines the Labyrinth class.
+ */
+
 #ifndef LABYRINTHE_H
 #define LABYRINTHE_H
 
@@ -10,6 +15,11 @@
 #include <unordered_map>
 #include <vector>
 
+
+/**
+ * @brief Class implementing an Environnement.
+ * A labyrinth is a bidimensionnal array of `Cell`
+ */
 class Labyrinthe : public Environnement
 {
 private:
@@ -83,9 +93,9 @@ public:
 
 	/**
 	 * @brief Update a mark and reconfigure the labyrinth.
-	 * @param i The mark's index
+	 * @param index The mark's index
 	 */
-	void update_mark(int i);
+	void update_mark(int index);
 };
 
 #endif

@@ -1,0 +1,63 @@
+compilation_database_dir: ./build
+output_directory: uml
+diagrams:
+  all:
+    type: class
+    glob:
+      - include/immutable/*.h
+      - include/*.h
+      - src/*.cc
+    include:
+      elements:
+        - Environnement
+        - Labyrinthe
+        - Cell
+        - CellType
+        - Mover
+        - DummyMover
+        - Character
+        - Chasseur
+        - Gardien
+        - Fireball
+        - Sound
+        - Audio
+        - Position
+        - Util
+        - HUD
+
+  mover:
+    type: class
+    generate_method_arguments: full
+    glob:
+      - include/immutable/*.h
+      - include/*.h
+      - src/*.cc
+    include:
+      elements:
+        - Mover
+        - DummyMover
+        - Character
+        - Gardien
+        - Chasseur
+      relationships:
+        - inheritance
+
+  environnement:
+    type: class
+    glob:
+      - include/immutable/*.h
+      - include/*.h
+      - src/*.cc
+    include:
+      elements:
+        - Environnement
+        - Labyrinthe
+        - Cell
+        - CellType
+      relationships:
+        - inheritance
+        - aggregation
+    layout:
+      Cell:
+        - left: Labyrinthe
+

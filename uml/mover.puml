@@ -1,0 +1,94 @@
+@startuml
+abstract "Mover" as C_0000271278170332191289
+abstract C_0000271278170332191289 {
+{static} -init(const char * ) : void *
++Mover(int x, int y, Labyrinthe * l, const char * modele) : void
++~Mover() : void
++tomber() : void
++rester_au_sol() : void
+{abstract} +update() = 0 : void
+{abstract} +process_fireball(float dx, float dy) = 0 : bool
+{abstract} +move(double dx, double dy) = 0 : bool
+{abstract} +fire(int angle_vertical) = 0 : void
++right_click(bool shift, bool control) : void
++_l : Environnement *
++_fb : FireBall *
++_x : float
++_y : float
++_angle : int
++_model : void *
+}
+class "Character" as C_0001651132542626895657
+class C_0001651132542626895657 {
+-bresenham_collision(int x1, int y1, int x2, int y2) const : bool
+#move_aux(double dx, double dy) : bool
+#try_move(double dx, double dy) : bool
+#on_cell_change(Cell & cell) : bool
+#looks_at(double x, double y, double err = Environnement::scale) const : bool
+#can_see(double x, double y) const : bool
+#can_see(const Position & target) const : bool
+{static} +init(Labyrinthe * l) : void
++Character(int x, int y, Labyrinthe * l, const char * modele) : void
++Character(int x, int y, int hp, int max_hp, Labyrinthe * l, const char * modele) : void
++Character(int x, int y, Character::milliseconds cooldown, int hp, int max_hp, Labyrinthe * l, const char * modele) : void
++hp() const : int
++hit(int dmg, bool play_sound = true) : void
++max_hp() const : int
++get_angle() const : int
++set_angle(int angle) : void
++fire(int vertical_angle) : void
++get_volume(double x, double y) : float
+#_l : Labyrinthe *
+#_max_hp : int
+#_hp : int
+#_fireball_ready : bool
+#_fireball_cooldown : Character::milliseconds
+#_last_fireball_time : Character::time_point
+#_fire_angle_error : std::uniform_int_distribution<>
+#_fire_error_step : double
+#_fire_sound : Sound *
+#_hit_sound : Sound *
+#_heal_sound : Sound *
+{static} -_max_distance : double
+{static} #_wall_hit_sound : Sound *
+}
+class "Gardien" as C_0001224198675948223321
+class C_0001224198675948223321 {
++Gardien(Labyrinthe * l, const char * modele) : void
++Gardien(int hp, int max_hp, Labyrinthe * l, const char * modele) : void
++update() : void
++move(double dx, double dy) : bool
++on_cell_change(Cell & cell) : bool
++process_fireball(float dx, float dy) : bool
++get_angle() const : int
++set_angle(int angle) : void
+-_state : Gardien::State
+-_speed : double
+-_range : double
+{static} -_random_angle : std::uniform_int_distribution<>
+}
+class "Chasseur" as C_0001814787268382861053
+class C_0001814787268382861053 {
++Chasseur(Labyrinthe * l) : void
++move(double dx, double dy) : bool
++on_cell_change(Cell & cell) : bool
++update() : void
++process_fireball(float dx, float dy) : bool
++get_angle() const : int
++right_click(bool shift, bool control) : void
+}
+class "DummyMover" as C_0001372549048354737909
+class C_0001372549048354737909 {
++DummyMover(Labyrinthe * l) : void
++~DummyMover() : void
++update() : void
++process_fireball(float , float ) : bool
++move(double dx, double dy) : bool
++fire(int angle_vertical) : void
+{static} -_is_instanciated : bool
+}
+C_0000271278170332191289 <|-- C_0001651132542626895657
+C_0001651132542626895657 <|-- C_0001224198675948223321
+C_0001651132542626895657 <|-- C_0001814787268382861053
+C_0000271278170332191289 <|-- C_0001372549048354737909
+@enduml

@@ -1,3 +1,9 @@
+/**
+ * @file Cell.h
+ * This file defines a Cell type used to represent the cells of the labyrinth,
+ * as well as an enumeration for the different types of cells.
+ */
+
 #ifndef LAB_CELL_H
 #define LAB_CELL_H
 
@@ -5,7 +11,7 @@
  * @brief Possible types of cells.
  */
 enum class CellType {
-	empty = 0,
+	empty,
 	wall,
 	treasure,
 	box,
@@ -18,22 +24,20 @@ enum class CellType {
  * @brief Type representing a cell in the labyrinth.
  */
 struct Cell {
-	CellType _type = CellType::empty;
-	int _index = -1;
-	int _mark_index = -1;
+	CellType _type = CellType::empty; // type of the cell
+	int _index = -1;                  // index in the corresponding array (e.g. index in the labyrinth's `_guards` array)
+	int _mark_index = -1;             // index in the labyrinth's `_marks` array
 
 	/**
 	 * @brief Default constructor, creates an empty cell with its index at -1.
 	 */
 	Cell() = default;
 
-
 	/**
 	 * @brief Constructs a cell.
 	 * @param type The cell's type
 	 */
 	explicit Cell(CellType type) : _type(type) {}
-
 
 	/**
 	 * @brief Constructs a cell.

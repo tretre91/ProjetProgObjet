@@ -147,8 +147,8 @@ int Labyrinthe::texture_id(const std::string& filename) {
 	}
 }
 
-void Labyrinthe::update_mark(int i) {
-	Environnement::_marks[i] = *static_cast<Box*>(_marks[i]);
+void Labyrinthe::update_mark(int index) {
+	Environnement::_marks[index] = *static_cast<Box*>(_marks[index]);
 	reconfigure();
 }
 
@@ -206,6 +206,7 @@ int Labyrinthe::parse(std::ifstream& file) {
 				mark->_target = it->second;
 				_marks.push_back(mark);
 			} else {
+				delete mark;
 				throw ParseError(fmt::format("{}:{}, There are already 2 teleporters of type {}\n", x, y, id));
 			}
 		} else {
@@ -216,7 +217,7 @@ int Labyrinthe::parse(std::ifstream& file) {
 	};
 
 	// Function used to add a textured wall
-	auto add_texture = [&, this](int x, int y, char id) {
+	auto add_poster = [&, this](int x, int y, char id) {
 		const auto it = textures.find(id);
 		if (it == textures.end()) {
 			throw ParseError(fmt::format("{}:{}, No texture associated with '{}'", y, x, id));
@@ -308,11 +309,11 @@ int Labyrinthe::parse(std::ifstream& file) {
 				}
 				last_horizontal_wall = x;
 				break;
-			default:                         // textures, teleporters and invalid characters
+			default: // textures, teleporters and invalid characters
 				if (std::isdigit(line[x])) { // teleporter
 					add_teleporter(x, y, line[x]);
 				} else if (std::islower(line[x])) { // texture
-					add_texture(x, y, line[x]);
+					add_poster(x, y, line[x]);
 				} else {
 					throw ParseError(fmt::format("{}:{}, Unknown character '{}'", y, x, line[x]));
 				}

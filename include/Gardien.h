@@ -1,3 +1,8 @@
+/**
+ * @file Gardien.h
+ * Defines the Guard class.
+ */
+
 #ifndef LAB_GARDIEN_H
 #define LAB_GARDIEN_H
 
@@ -6,6 +11,9 @@
 
 class Labyrinthe;
 
+/**
+ * @brief Class used to represent a Guard.
+ */
 class Gardien : public Character
 {
 private:
@@ -13,7 +21,7 @@ private:
 	static std::uniform_int_distribution<> _random_angle;
 
 	/**
-	 * @brief Enum for the different states of a guard
+	 * @brief Enum for the different states of a guard.
 	 */
 	enum class State {
 		patrol,
@@ -39,13 +47,13 @@ public:
 	Gardien(int hp, int max_hp, Labyrinthe* l, const char* modele);
 
 	/**
-	 * @brief Function called at each update
+	 * @brief Function called at each update.
 	 * Moves the guard and checks for a change of state
 	 */
 	void update() override;
 
 	/**
-	 * @brief Attemps to move a guard along the x and y axis
+	 * @brief Attemps to move a guard along the x and y axis.
 	 * - In patrol mode, this method implements a random walk, when a guard
 	 * hits a wall, he randomly turns in another direction.
 	 * - In attack mode, the guard "looks at" the hunter and moves towards
@@ -62,7 +70,7 @@ public:
 	bool on_cell_change(Cell& cell) override;
 
 	/**
-	 * @brief Moves the fireball along the x and y axis
+	 * @brief Moves the fireball along the x and y axis.
 	 * @return false if the fireball collided with something
 	 */
 	bool process_fireball(float dx, float dy) override;

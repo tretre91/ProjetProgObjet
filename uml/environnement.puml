@@ -1,0 +1,73 @@
+@startuml
+enum "CellType" as C_0001365247480956715224
+enum C_0001365247480956715224 {
+empty
+wall
+treasure
+box
+mark
+hunter
+guard
+}
+class "Cell" as C_0002079627403415545256
+class C_0002079627403415545256 {
++Cell() = default : void
++Cell(CellType type) : void
++Cell(CellType type, int index) : void
++is_empty() const : bool
++_type : CellType
++_index : int
++_mark_index : int
+}
+abstract "Environnement" as C_0002069755371297581881
+abstract C_0002069755371297581881 {
+{static} +init(char * filename) : Environnement *
+{abstract} +width() = 0 : int
+{abstract} +height() = 0 : int
+{abstract} +data(int i, int j) = 0 : char
++~Environnement() : void
++reconfigure() : void
++wall_texture(char * ) : int
++make_fireballs() : void
++_walls : Wall *
++_nwall : int
++_picts : Wall *
++_npicts : int
++_boxes : Box *
++_nboxes : int
++_marks : Box *
++_nmarks : int
++_treasor : Box
++_guards : Mover **
++_nguards : int
+{static} +scale : const int
+{static} +texture_dir : const char *
+{static} +modele_dir : const char *
+}
+class "Labyrinthe" as C_0001321287422961384243
+class C_0001321287422961384243 {
+-texture_id(const std::string & filename) : int
+-parse_header(std::ifstream & file) : std::unordered_map<char,std::string>
+-parse(std::ifstream & file) : int
++Labyrinthe(const char * filename) : void
++~Labyrinthe() : void
++width() : int
++height() : int
++data(int x, int y) : char
++cell(int x, int y) const : Cell
++cell(int x, int y) : Cell &
++update_mark(int index) : void
+-_map : std::vector<std::vector<Cell>>
+-_width : int
+-_height : int
++_walls : std::vector<Wall>
++_posters : std::vector<Wall>
++_marks : std::vector<Mark *>
++_boxes : std::vector<Box>
++_guards : std::vector<Mover *>
+}
+C_0002079627403415545256 o-- C_0001365247480956715224 : +_type
+C_0001321287422961384243 o-- C_0002079627403415545256 : -_map
+C_0002069755371297581881 <|-- C_0001321287422961384243
+C_0002079627403415545256 -[hidden]left- C_0001321287422961384243
+@enduml
