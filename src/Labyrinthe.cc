@@ -17,7 +17,7 @@
 
 Environnement* Environnement::init(char* filename) {
 	// creation of the labyrinth
-	texture_dir = "textures/backrooms";
+	texture_dir = "textures";
 	modele_dir = "modeles";
 	Labyrinthe* lab = new Labyrinthe(filename);
 

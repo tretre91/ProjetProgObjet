@@ -1,7 +1,7 @@
 # un commentaire commence par #
 
-a	affiche1.jpg	# teXture de l'affiche 1
-b	affiche2.jpg	# teXture de l'affiche 2
+a	affiche.jpg	        # texture de l'affiche 1
+b	raoult_carre.jpg	# texture de l'affiche 2
 
 
 +-----------b------------------------------------------------------------+
@@ -61,8 +61,8 @@ a      G                  ++   |    G       +------a-------+  |    +--------+  |
                                                                                         |  |
                                                                               +---------+  |
                                                                               |            |
-                                                                              +            |
-                                                                                  T        |
-                                                                              +            |
+                                                                              |            |
+                                                                              |   T        |
+                                                                              |            |
                                                                               |         G  |
                                                                               +------------+

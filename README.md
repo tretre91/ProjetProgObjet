@@ -2,11 +2,16 @@
 
 ## Compilation
 
-La compilation est faite en utilisant cmake (testé sous fedora).
+La compilation est faite en utilisant cmake (testé sous fedora) :
 ```bash
 cmake -S . -B build [-DUBUNTU]
 cmake --build build
 ./build/labh -l mazes/labyrinthe.txt -a
+```
+Ou make :
+```bash
+make [OS=Ubuntu]
+./labh -l mazes/labyrinthe.txt -a
 ```
 
 ## Difficultés rencontrées
@@ -53,13 +58,13 @@ struct Cell {
 - `_type` : le type de la cellule, `CellType` est une énumération donnant les types de cellules possibles :
   ```cpp
   enum class CellType {
-  	  empty = 0,
-  	  wall,
-	  treasure,
-	  box,
-	  mark,
-	  hunter,
-	  guard
+	empty,
+	wall,
+	treasure,
+	box,
+	mark,
+	hunter,
+	guard
   }
   ```
 - `_index` : l'indice de l'objet se trouvant sur la cellule, par exemple si une cellule `c` est de type `guard`, alors sa variable `_index` correspondra à l'indice du gardien qui s'y trouve, dans le tableau `_guards` du labyrinthe. Cela permet par exemple de récupérer un garde à partir d'une cellule, sans avoir à itérer sur tous les gardes.
@@ -77,7 +82,9 @@ Tous les personnages héritent d'une classe abstraite `Character`, classe fille 
 #### Gardiens
 
 Les gardiens se déplacent aléatoirement dans le labyrinthe, en changeant de direction en cas de collision.
-Lorsqu'un gardien voit le chasseur, il se rapproche de lui pour être à distance de tir (qui est un paramètre de la classe `Gardien`) puis tire en direction du chasseur. Un gardien arrête de suivre le chasseur lorsque celui-ci sort de son champ de vision (en passant derrière un mur ou une boîte par exemple).
+Lorsqu'un gardien voit le chasseur, il se rapproche de lui pour être à distance de tir (qui est un paramètre de la classe `Gardien`) puis tire en direction du chasseur.
+
+Un gardien arrête de suivre le chasseur lorsque celui-ci sort de son champ de vision (en passant derrière un mur ou une boîte par exemple).
 Lorsqu'un chasseur n'a plus de points de vie, il est supprimé de la carte.
 
 #### Chasseur
@@ -96,11 +103,11 @@ Il existe trois types de marques :
 - les marques de soin, des marques à usage unique qui soignent le chasseur de 20 points de vie lorsqu'il marche dessus.
 - les téléporteurs, des marques qui déplacent le joueur vers un téléporteur cible lorsqu'il marche dessus.
 
-###### Marques de soin
+#### Marques de soin
 
 Les marques de soin rendent un certain nombre de points de vie au chasseur lorsqu'il marche dessus. Elles n'ont pas d'effet sur les gardiens.
 
-###### Téléporteurs
+#### Téléporteurs
 
 Les téléporteurs fonctionnent par paires, quand le chasseur se déplace sur un téléporteur, il est déplacé vers le téléporteur correspondant, ou rien ne se passe si le téléporteur n'a pas de destination.
 Les gardiens ne peuvent pas se déplacer sur un cellule contenant un téléporteur.
