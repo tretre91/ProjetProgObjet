@@ -82,7 +82,8 @@ void Character::fire(int angle_vertical) {
 		const int vertical_error = _fire_angle_error(Util::random_engine) / 2;
 		const int horizontal_error = _fire_angle_error(Util::random_engine);
 		_fire_sound->play(get_volume(_x, _y));
-		_fb->init(_x, _y, 10., angle_vertical + vertical_error, _angle + horizontal_error);
+		const double offset = Environnement::scale / 2.;
+		_fb->init(_x - offset, _y - offset, 10., angle_vertical + vertical_error, _angle + horizontal_error);
 		_fireball_ready = false;
 		_last_fireball_time = Util::clock::now();
 	}
