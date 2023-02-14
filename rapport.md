@@ -36,6 +36,9 @@ Des labyrinthes montrant certaines fonctionalités sont présents dans le dossie
 pour un labyrinthe de grande taille et `teleport.txt` pour un labyrinthe contenant des téléporteurs et des marques
 de soin.
 
+**Note :** J'ai utilisé la bibliothèque fmt (https://fmt.dev/) pour tout ce qui concerne l'affichage de messages dans
+le terminal et le formatage de chaînes de caractères.
+
 # Difficultés rencontrées
 
 La gestion des angles pour les intéractions chasseur-gardiens a été compliquée à implémenter, en particulier
