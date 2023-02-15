@@ -42,9 +42,12 @@ bool Chasseur::on_cell_change(Cell& cell) {
 		case MarkType::teleporter:
 			{
 				TeleporterMark* dest = dynamic_cast<TeleporterMark*>(mark)->_target;
+				cell._type = CellType::mark;
 				if (dest != nullptr) {
 					_x = (dest->_x + 0.5) * Environnement::scale;
 					_y = (dest->_y + 0.5) * Environnement::scale;
+					const auto [x, y] = Position::grid_position(_x, _y);
+					_l->cell(x, y)._type = CellType::hunter;
 				}
 			}
 			break;
